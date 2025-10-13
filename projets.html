@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Projets — Matthieu Farbos</title>
+    <meta name="description" content="Projets — page vierge, même style que l'accueil." />
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: #0b0f14; color: #fff; overflow: hidden;
+      }
+      /* Background chart */
+      #bg { position: fixed; inset: 0; z-index: 0; }
+      #tv-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+      #tv-container > div, #tv-container iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; pointer-events: none !important; }
+
+      /* Empty overlay to keep same structure */
+      .overlay { position: relative; z-index: 10; height: 100dvh; display: grid; place-items: center; text-align: center; padding: 24px; }
+
+      /* Credits */
+      .credit { position: fixed; right: 8px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.65; }
+      .credit a { color: #fff; }
+      .credit-name { position: fixed; left: 8px; bottom: 62px; z-index: 1; font-size: 12px; opacity: 0.75; }
+
+      /* Footer */
+      .footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(10,14,18,0.72); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px; }
+      .footer .links { display: flex; gap: 16px; align-items: center; }
+      .footer a { color: #fff; text-decoration: none; opacity: 0.9; }
+      .footer a:hover { opacity: 1; text-decoration: underline; }
+      .footer .lang { display: flex; align-items: center; gap: 8px; }
+      .footer .lang label { opacity: 0.8; }
+      .footer .lang button { appearance: none; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+      .footer .lang button:hover { background: rgba(255,255,255,0.12); }
+      .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
+    </style>
+  </head>
+  <body>
+    <div id="bg"><div id="tv-container"></div></div>
+
+    <main class="overlay"><!-- page vierge: pas de titre/texte --></main>
+
+    <div class="credit">Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
+    <div class="credit-name">© Matthieu Farbos</div>
+
+    <nav class="footer" aria-label="Navigation bas de page">
+      <div class="links">
+        <a href="index.html" id="nav-home">Accueil</a>
+        <a href="projets.html" id="nav-projects">Projets</a>
+      </div>
+      <div class="lang" role="group" aria-label="Choix de langue">
+        <label>Langue:</label>
+        <button type="button" data-lang="fr" aria-pressed="false" id="btn-fr">FR</button>
+        <button type="button" data-lang="en" aria-pressed="false" id="btn-en">EN</button>
+      </div>
+    </nav>
+
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+      const SYMBOL = 'NASDAQ:GOOGL';
+      const storageKey = 'site.lang';
+      let currentLang = (localStorage.getItem(storageKey) || 'fr');
+
+      function setActiveButtons() {
+        const frBtn = document.getElementById('btn-fr');
+        const enBtn = document.getElementById('btn-en');
+        frBtn.classList.toggle('active', currentLang === 'fr');
+        enBtn.classList.toggle('active', currentLang === 'en');
+        frBtn.setAttribute('aria-pressed', String(currentLang === 'fr'));
+        enBtn.setAttribute('aria-pressed', String(currentLang === 'en'));
+      }
+
+      function initChart() {
+        const container = document.getElementById('tv-container');
+        container.innerHTML = '';
+        new TradingView.widget({
+          container_id: 'tv-container', autosize: true, symbol: SYMBOL,
+          interval: '5', range: '1D', timezone: 'Europe/Paris', theme: 'dark', style: '1',
+          locale: currentLang === 'fr' ? 'fr' : 'en', hide_top_toolbar: true, hide_side_toolbar: true,
+          allow_symbol_change: false, withdateranges: false, studies: [], backgroundColor: 'rgba(11,15,20,1)'
+        });
+      }
+
+      function applyLanguage(lang) {
+        currentLang = (lang === 'en') ? 'en' : 'fr';
+        localStorage.setItem(storageKey, currentLang);
+        setActiveButtons();
+        const navHome = document.getElementById('nav-home');
+        const navProjects = document.getElementById('nav-projects');
+        const langLabel = document.querySelector('.lang label');
+        if (currentLang === 'fr') {
+          navHome.textContent = 'Accueil';
+          navProjects.textContent = 'Projets';
+          langLabel.textContent = 'Langue:';
+        } else {
+          navHome.textContent = 'Home';
+          navProjects.textContent = 'Projects';
+          langLabel.textContent = 'Language:';
+        }
+        if (window.TradingView) initChart();
+      }
+
+      if (window.TradingView) { initChart(); }
+      else { window.addEventListener('load', initChart); }
+
+      window.addEventListener('DOMContentLoaded', function() {
+        setActiveButtons();
+        applyLanguage(currentLang);
+        document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
+        document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
+      });
+    </script>
+  </body>
+  </html>
+
