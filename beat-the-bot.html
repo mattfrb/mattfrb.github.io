@@ -418,7 +418,7 @@
           const x = i * (xw + gap) + gap; // one-candle gap on the right
           const y = (v)=> h - (v - min) / (max - min) * h;
           const up = k.c >= k.o;
-          const color = 'rgba(77,163,255,0.9)';
+          const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)';
           ctx.strokeStyle = color;
           ctx.fillStyle = color; // body same color as wick
           // wick
