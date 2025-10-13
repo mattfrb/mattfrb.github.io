@@ -64,12 +64,21 @@
       .credit {
         position: fixed;
         right: 8px;
-        bottom: 8px;
+        bottom: 56px; /* leave room for footer */
         z-index: 1;
         font-size: 12px;
         opacity: 0.65;
       }
       .credit a { color: #fff; }
+
+      .credit-name {
+        position: fixed;
+        left: 8px;
+        bottom: 56px; /* leave room for footer */
+        z-index: 1;
+        font-size: 12px;
+        opacity: 0.75;
+      }
 
       /* Bottom navigation/footer bar */
       .footer {
@@ -115,7 +124,7 @@
     <!-- Foreground content -->
     <main class="overlay">
       <div>
-        <h1>Bonjour je m'appelle Matthieu</h1>
+        <h1>Bienvenue sur mon site</h1>
         <p class="note">Arrière‑plan : Apple (AAPL) en bougies 5 minutes (intraday).</p>
       </div>
     </main>
@@ -123,6 +132,7 @@
     <div class="credit">
       Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a>
     </div>
+    <div class="credit-name">© Matthieu Farbos</div>
 
     <!-- Footer navigation with language switch -->
     <nav class="footer" aria-label="Navigation bas de page">
@@ -190,13 +200,13 @@
         const navProjects = document.getElementById('nav-projects');
         const langLabel = document.querySelector('.lang label');
         if (currentLang === 'fr') {
-          h1.textContent = "Bonjour je m'appelle Matthieu";
+          h1.textContent = 'Bienvenue sur mon site';
           note.textContent = 'Arrière‑plan : Apple (AAPL) en bougies 5 minutes (intraday).';
           navHome.textContent = 'Accueil';
           navProjects.textContent = 'Projets';
           langLabel.textContent = 'Langue:';
         } else {
-          h1.textContent = "Hello, my name is Matthieu";
+          h1.textContent = 'Welcome to my website';
           note.textContent = 'Background: Apple (AAPL) 5‑minute candles (intraday).';
           navHome.textContent = 'Home';
           navProjects.textContent = 'Projects';
