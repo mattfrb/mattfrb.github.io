@@ -124,8 +124,8 @@
     <!-- Foreground content -->
     <main class="overlay">
       <div>
-        <h1>Bienvenue sur mon site</h1>
-        <p class="note">Arrière‑plan : Apple (AAPL) en bougies 5 minutes (intraday).</p>
+        <h1>Bienvenue !</h1>
+        <p class="note">Arrière‑plan : Alphabet (GOOGL) en bougies 5 minutes (intraday).</p>
       </div>
     </main>
 
@@ -150,8 +150,8 @@
     <!-- TradingView Advanced Chart Widget -->
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-      // Trading symbol
-      const SYMBOL = 'NASDAQ:AAPL';
+      // Trading symbol (Alphabet Class A)
+      const SYMBOL = 'NASDAQ:GOOGL';
 
       // Language state
       const storageKey = 'site.lang';
@@ -200,14 +200,14 @@
         const navProjects = document.getElementById('nav-projects');
         const langLabel = document.querySelector('.lang label');
         if (currentLang === 'fr') {
-          h1.textContent = 'Bienvenue sur mon site';
-          note.textContent = 'Arrière‑plan : Apple (AAPL) en bougies 5 minutes (intraday).';
+          h1.textContent = 'Bienvenue !';
+          note.textContent = 'Arrière‑plan : Alphabet (GOOGL) en bougies 5 minutes (intraday).';
           navHome.textContent = 'Accueil';
           navProjects.textContent = 'Projets';
           langLabel.textContent = 'Langue:';
         } else {
-          h1.textContent = 'Welcome to my website';
-          note.textContent = 'Background: Apple (AAPL) 5‑minute candles (intraday).';
+          h1.textContent = 'Welcome!';
+          note.textContent = 'Background: Alphabet (GOOGL) 5‑minute candles (intraday).';
           navHome.textContent = 'Home';
           navProjects.textContent = 'Projects';
           langLabel.textContent = 'Language:';
