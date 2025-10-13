@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bonjour Matthieu</title>
     <meta name="description" content="Bonjour, je m'appelle Matthieu — fond animé avec le cours du S&P 500 en bougies 5 minutes." />
+    <link rel="prefetch" href="projets.html" />
+    <link rel="prefetch" href="beat-the-bot.html" />
     <style>
       html, body {
         height: 100%;
@@ -15,6 +17,8 @@
         background: #0b0f14;
         color: #fff;
         overflow: hidden;
+        opacity: 0;
+        transition: opacity .25s ease;
       }
       /* Fullscreen background chart (always behind overlay) */
       #bg {
@@ -150,6 +154,19 @@
     <!-- TradingView Advanced Chart Widget -->
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
+      // Seamless page transitions (fade)
+      function setupTransitions() {
+        requestAnimationFrame(() => { document.body.style.opacity = '1'; });
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (!href || href.startsWith('http') || href.startsWith('#') || a.target === '_blank') return;
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.style.opacity = '0';
+            setTimeout(() => { window.location.href = a.href; }, 200);
+          });
+        });
+      }
       // Trading symbol (Alphabet Class A)
       const SYMBOL = 'NASDAQ:GOOGL';
 
@@ -222,6 +239,7 @@
 
       // Setup language buttons
       window.addEventListener('DOMContentLoaded', function() {
+        setupTransitions();
         setActiveButtons();
         applyLanguage(currentLang);
         document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
