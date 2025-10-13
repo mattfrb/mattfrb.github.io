@@ -7,7 +7,7 @@
     <meta name="description" content="Bonjour, je m'appelle Matthieu — fond animé avec le cours du S&P 500 en bougies 5 minutes." />
     <style>
       html, body {
-        height: 1%;
+        height: 100%;
         margin: 0;
       }
       body {
@@ -27,7 +27,7 @@
         inset: 0;
       }
       /* Prevent interactions so the chart acts like a background */
-      #bg, #bg * { pointer-events: none; }
+      /* #bg, #bg * { pointer-events: none; }
 
       /* Foreground overlay text */
       .overlay {
@@ -41,9 +41,9 @@
       }
       h1 {
         margin: 0;
-        font-weight: 700;
-        font-size: clamp(28px, 6vw, 64px);
-        line-height: 1.15;
+        font-weight: 1;
+        font-size: clamp(1px, 1vw, 1px);
+        line-height: 0.15;
         text-shadow: 0 2px 16px rgba(0,0,0,0.6);
       }
       p.note {
