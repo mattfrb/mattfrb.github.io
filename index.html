@@ -70,6 +70,40 @@
         opacity: 0.65;
       }
       .credit a { color: #fff; }
+
+      /* Bottom navigation/footer bar */
+      .footer {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(10, 14, 18, 0.72);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        font-size: 14px;
+      }
+      .footer .links { display: flex; gap: 16px; align-items: center; }
+      .footer a { color: #fff; text-decoration: none; opacity: 0.9; }
+      .footer a:hover { opacity: 1; text-decoration: underline; }
+      .footer .lang { display: flex; align-items: center; gap: 8px; }
+      .footer .lang label { opacity: 0.8; }
+      .footer .lang button {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.06);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .footer .lang button:hover { background: rgba(255,255,255,0.12); }
+      .footer .lang button.active { background: rgba(66, 133, 244, 0.35); border-color: rgba(66,133,244,0.6); }
     </style>
   </head>
   <body>
@@ -90,14 +124,42 @@
       Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a>
     </div>
 
+    <!-- Footer navigation with language switch -->
+    <nav class="footer" aria-label="Navigation bas de page">
+      <div class="links">
+        <a href="#" id="nav-home">Accueil</a>
+        <a href="#" id="nav-projects">Projets</a>
+      </div>
+      <div class="lang" role="group" aria-label="Choix de langue">
+        <label for="">Langue:</label>
+        <button type="button" data-lang="fr" aria-pressed="false" id="btn-fr">FR</button>
+        <button type="button" data-lang="en" aria-pressed="false" id="btn-en">EN</button>
+      </div>
+    </nav>
+
     <!-- TradingView Advanced Chart Widget -->
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-      // If the primary symbol fails to load in your region, try: 'AAPL'
+      // Trading symbol
       const SYMBOL = 'NASDAQ:AAPL';
+
+      // Language state
+      const storageKey = 'site.lang';
+      let currentLang = (localStorage.getItem(storageKey) || 'fr');
+
+      function setActiveButtons() {
+        const frBtn = document.getElementById('btn-fr');
+        const enBtn = document.getElementById('btn-en');
+        frBtn.classList.toggle('active', currentLang === 'fr');
+        enBtn.classList.toggle('active', currentLang === 'en');
+        frBtn.setAttribute('aria-pressed', String(currentLang === 'fr'));
+        enBtn.setAttribute('aria-pressed', String(currentLang === 'en'));
+      }
 
       function initChart() {
         /* global TradingView */
+        const container = document.getElementById('tv-container');
+        container.innerHTML = '';
         new TradingView.widget({
           container_id: 'tv-container',
           autosize: true,
@@ -107,7 +169,7 @@
           timezone: 'Europe/Paris',   // adjust as you prefer
           theme: 'dark',
           style: '1',                 // 1 = candles
-          locale: 'fr',
+          locale: currentLang === 'fr' ? 'fr' : 'en',
           hide_top_toolbar: true,
           hide_side_toolbar: true,
           allow_symbol_change: false,
@@ -117,11 +179,44 @@
         });
       }
 
-      if (window.TradingView) {
-        initChart();
-      } else {
-        window.addEventListener('load', initChart);
+      function applyLanguage(lang) {
+        currentLang = (lang === 'en') ? 'en' : 'fr';
+        localStorage.setItem(storageKey, currentLang);
+        setActiveButtons();
+        // Update texts
+        const h1 = document.querySelector('h1');
+        const note = document.querySelector('p.note');
+        const navHome = document.getElementById('nav-home');
+        const navProjects = document.getElementById('nav-projects');
+        const langLabel = document.querySelector('.lang label');
+        if (currentLang === 'fr') {
+          h1.textContent = "Bonjour je m'appelle Matthieu";
+          note.textContent = 'Arrière‑plan : Apple (AAPL) en bougies 5 minutes (intraday).';
+          navHome.textContent = 'Accueil';
+          navProjects.textContent = 'Projets';
+          langLabel.textContent = 'Langue:';
+        } else {
+          h1.textContent = "Hello, my name is Matthieu";
+          note.textContent = 'Background: Apple (AAPL) 5‑minute candles (intraday).';
+          navHome.textContent = 'Home';
+          navProjects.textContent = 'Projects';
+          langLabel.textContent = 'Language:';
+        }
+        // Rebuild chart with new locale
+        if (window.TradingView) initChart();
       }
+
+      // Initialize page
+      if (window.TradingView) { initChart(); }
+      else { window.addEventListener('load', initChart); }
+
+      // Setup language buttons
+      window.addEventListener('DOMContentLoaded', function() {
+        setActiveButtons();
+        applyLanguage(currentLang);
+        document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
+        document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
+      });
     </script>
 
     <noscript>
