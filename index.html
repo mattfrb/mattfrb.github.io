@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bonjour Matthieu</title>
+    <meta name="description" content="Bonjour, je m'appelle Matthieu — fond animé avec le cours du S&P 500 en bougies 5 minutes." />
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: #0b0f14;
+        color: #fff;
+        overflow: hidden;
+      }
+      /* Fullscreen background chart */
+      #bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+      #tv-container {
+        position: absolute;
+        inset: 0;
+      }
+      /* Prevent interactions so the chart acts like a background */
+      #bg, #bg * { pointer-events: none; }
+
+      /* Foreground overlay text */
+      .overlay {
+        position: relative;
+        z-index: 1;
+        height: 100dvh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px;
+      }
+      h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: clamp(28px, 6vw, 64px);
+        line-height: 1.15;
+        text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+      }
+      p.note {
+        margin-top: 12px;
+        opacity: 0.7;
+        font-size: 14px;
+      }
+      .credit {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        z-index: 1;
+        font-size: 12px;
+        opacity: 0.65;
+      }
+      .credit a { color: #fff; }
+    </style>
+  </head>
+  <body>
+    <!-- Background chart (TradingView) -->
+    <div id="bg">
+      <div id="tv-container"></div>
+    </div>
+
+    <!-- Foreground content -->
+    <main class="overlay">
+      <div>
+        <h1>bonjour je m'appelle matthieu</h1>
+        <p class="note">Arrière‑plan : S&amp;P 500 en bougies 5 minutes (intraday).</p>
+      </div>
+    </main>
+
+    <div class="credit">
+      Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a>
+    </div>
+
+    <!-- TradingView Advanced Chart Widget -->
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+      // If the primary symbol fails to load in your region, try: 'TVC:SPX', 'SPCFD:SPX', or 'OANDA:SPX500USD'
+      const SYMBOL = 'SP:SPX';
+
+      function initChart() {
+        /* global TradingView */
+        new TradingView.widget({
+          container_id: 'tv-container',
+          autosize: true,
+          symbol: SYMBOL,
+          interval: '5',              // 5-minute candles
+          range: '1D',                // current session/day
+          timezone: 'Europe/Paris',   // adjust as you prefer
+          theme: 'dark',
+          style: '1',                 // 1 = candles
+          locale: 'fr',
+          hide_top_toolbar: true,
+          hide_side_toolbar: true,
+          allow_symbol_change: false,
+          withdateranges: false,
+          studies: [],
+          backgroundColor: 'rgba(11,15,20,1)'
+        });
+      }
+
+      if (window.TradingView) {
+        initChart();
+      } else {
+        window.addEventListener('load', initChart);
+      }
+    </script>
+
+    <noscript>
+      Veuillez activer JavaScript pour afficher le graphique TradingView.
+    </noscript>
+  </body>
+  </html>
+
