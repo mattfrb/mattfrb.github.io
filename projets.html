@@ -39,7 +39,14 @@
   <body>
     <div id="bg"><div id="tv-container"></div></div>
 
-    <main class="overlay"><!-- page vierge: pas de titre/texte --></main>
+    <main class="overlay">
+      <div class="cards">
+        <a class="card" href="beat-the-bot.html">
+          <div class="card-title">Beat the Bot</div>
+          <div class="card-sub">Mini‑jeu — cliquez pour ouvrir</div>
+        </a>
+      </div>
+    </main>
 
     <div class="credit">Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
     <div class="credit-name">© Matthieu Farbos</div>
@@ -70,6 +77,18 @@
         frBtn.setAttribute('aria-pressed', String(currentLang === 'fr'));
         enBtn.setAttribute('aria-pressed', String(currentLang === 'en'));
       }
+
+      // Card styles injection (keeps CSS in one place)
+      (function addCardStyles(){
+        const css = `
+          .cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));width:min(960px,90vw);}
+          .card{display:block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:20px 22px;backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);color:#fff;text-decoration:none;}
+          .card:hover{background:rgba(255,255,255,0.10);}
+          .card-title{font-weight:700;font-size:20px;margin:0 0 6px}
+          .card-sub{opacity:.85;font-size:14px}
+        `;
+        const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
+      })();
 
       function initChart() {
         const container = document.getElementById('tv-container');
@@ -113,4 +132,3 @@
     </script>
   </body>
   </html>
-
