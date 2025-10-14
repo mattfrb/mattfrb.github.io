@@ -98,11 +98,6 @@
           <div class="field"><label for="qty" id="lbl-qty">Quantite</label><input type="number" id="qty" min="1" value="1" /></div>
         </div>
         <div class="levels-row"><label>Niveaux</label><span class="levels" id="levels">SL: - | TP: -</span></div>
-        <div class="actions">
-          <button class="btn buy" id="buy2">Acheter</button>
-          <button class="btn sell" id="sell2">Vendre</button>
-          <span class="pos" id="pos">Flat -</span>
-        </div>
       </div>
     </main>
 
@@ -297,8 +292,7 @@
 
       document.getElementById('buy').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
       document.getElementById('sell').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('sell', qty); });
-      document.getElementById('buy2').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
-      document.getElementById('sell2').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('sell', qty); });
+      // Secondary buttons removed
       document.getElementById('stopPct').addEventListener('input', recalcStops);
       document.getElementById('tpPct').addEventListener('input', recalcStops);
 
