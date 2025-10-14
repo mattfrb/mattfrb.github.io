@@ -31,7 +31,7 @@
       .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
       .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
       .btn-back:hover { background: rgba(255,255,255,0.12); }
-      :root{ --topbar-h: 56px; --footer-h: 56px; }
+      :root{ --topbar-h: 56px; --footer-h: 56px; --banner-h: 36px; }
       .topbar{ position: sticky; top: 0; z-index: 30; display:flex; align-items:center; justify-content: space-between; gap:12px; padding: 10px 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
       
       
@@ -51,6 +51,7 @@
       .metric{ flex:1 1 180px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:10px }
       .label{ font-size:12px; opacity:.8 }
       .value{ font-size:20px; margin-top:4px }
+      .instrument-banner{ box-sizing:border-box; height: var(--banner-h); display:flex; align-items:center; padding: 0 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); font-weight:700; letter-spacing:.2px }
       .green{ color:#4caf50 } .red{ color:#f44336 }
       table{ width:100%; border-collapse:collapse }
       th,td{ border-bottom:1px solid rgba(255,255,255,0.12); padding:8px 6px; text-align:left }
@@ -62,7 +63,8 @@
 
             <main class="overlay" style="height:auto; display:block; text-align:left; padding:0;">
       <div class="topbar"></div>
-      <div id="dash-area" style="height: calc(100vh - var(--topbar-h) - var(--footer-h)); overflow:auto; -webkit-overflow-scrolling: touch;">
+      <div id="dash-area" style="height: calc(100vh - var(--topbar-h) - var(--footer-h) - var(--banner-h)); overflow:auto; -webkit-overflow-scrolling: touch;">
+        <div class="instrument-banner">E‑mini Nasdaq 100 (NQ futures)</div>
         <div class="orb-wrap">
           <div class="orb-grid">
             <section class="card" id="status-card">
@@ -95,15 +97,7 @@
               </div>
               <div class="label" style="margin-top:8px">Un seul trade par séance; sortie sur TP, trailing stop ou fin de fenêtre.</div>
             </section>
-            <section class="card">
-              <h3 style="margin:0 0 8px">Données & Instrument</h3>
-              <div class="row">
-                <div class="metric"><div class="label">Produit</div><div class="value">E-mini Nasdaq 100 (NQ futures)</div></div>
-                <div class="metric"><div class="label">Symbole (Yahoo)</div><div class="value">NQ=F</div></div>
-                <div class="metric"><div class="label">Source données</div><div class="value">yfinance 1m (retardé) via GitHub Actions</div></div>
-                <div class="metric"><div class="label">Session</div><div class="value">9:30–16:00 ET (US/Eastern)</div></div>
-              </div>
-            </section>
+            
           <section class="card">
             <h3 style="margin:0 0 8px">Graphiques des trades</h3>
             <div class="charts">
@@ -111,6 +105,10 @@
               <div class="chartbox"><canvas id="chart-cum"></canvas></div>
               <div class="chartbox"><canvas id="chart-time"></canvas></div>
             </div>
+          </section>
+          <section class="card">
+            <h3 style="margin:0 0 8px">Cours du jour (NQ=F)</h3>
+            <div class="chartbox" style="height:360px"><canvas id="chart-today"></canvas></div>
           </section>
         </div>
       </div>
@@ -312,9 +310,62 @@
             const bars = document.getElementById('chart-bars'); if (bars) drawBars(bars, last10);
             const cum = document.getElementById('chart-cum'); if (cum) drawLine(cum, last10);
             const time = document.getElementById('chart-time'); if (time) drawTime(time, last10);
+
+            // Today price chart
+            const today = await loadJSON('opening_range_reports/intraday_today.json').catch(()=>null);
+            const canvasToday = document.getElementById('chart-today');
+            if (today && canvasToday) {
+              drawCandles(canvasToday, today.candles||[], latest.opening_range||{}, latest.trade||{}, latest.session_date);
+            }
           }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement'; }
         }
         window.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
+      })();
+    </script>
+    <script>
+      // Simple candlestick renderer with ORB levels and entry/exit markers
+      (function(){
+        function parseISO(s){ try { return new Date(s); } catch(e){ return null; } }
+        function drawCandles(canvas, candles, orb, trade, sessionDate){
+          const ctx = canvas.getContext('2d');
+          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          if(!candles || candles.length===0) return;
+          let min=Infinity, max=-Infinity;
+          for(const k of candles){ if(k.l<min) min=k.l; if(k.h>max) max=k.h; }
+          const pad = (max-min)*0.08 || 1; min -= pad; max += pad;
+          const x0=40, y0=10, W=w-x0-10, H=h-y0-20;
+          const y = v => y0 + H - (v-min)/(max-min||1)*H;
+          const n = candles.length;
+          const gap = 2;
+          const barW = Math.max(2, Math.floor(W/(n+1))-gap);
+          // Gridline 0.25 steps
+          ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+          for(let t=0;t<=4;t++){ const yy = y0 + (H*t/4); ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x0+W,yy); ctx.stroke(); }
+          // Candles
+          let i=0; for(const k of candles){ const x = x0 + i*(barW+gap) + gap; const up = k.c>=k.o; const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)'; ctx.strokeStyle=color; ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(x+barW/2, y(k.h)); ctx.lineTo(x+barW/2, y(k.l)); ctx.stroke(); const yo=y(k.o), yc=y(k.c); const top=Math.min(yo,yc), bh=Math.max(2, Math.abs(yo-yc)); ctx.fillRect(x, top, barW, bh); i++; }
+          // ORB levels
+          if (orb && (orb.high!=null) && (orb.low!=null)){
+            ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(66,133,244,0.6)';
+            const yh = y(orb.high), yl = y(orb.low);
+            ctx.beginPath(); ctx.moveTo(x0, yh); ctx.lineTo(x0+W, yh); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, yl); ctx.lineTo(x0+W, yl); ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          // Entry/Exit markers
+          function findIndexByTime(iso){ if(!iso) return null; const t = parseISO(iso).getTime(); for(let j=0;j<candles.length;j++){ const tt = parseISO(candles[j].t).getTime(); if (tt>=t) return j; } return candles.length-1; }
+          const entryIdx = trade && trade.entry_time ? findIndexByTime(trade.entry_time) : null;
+          if (entryIdx!=null){ const x = x0 + entryIdx*(barW+gap) + gap + barW/2; ctx.strokeStyle='#ffcc00'; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y0+H); ctx.stroke(); }
+          // Try to fetch exit time from today CSV
+          if (sessionDate){
+            fetch('opening_range_reports/trades_'+sessionDate+'.csv').then(r=> r.ok ? r.text() : Promise.reject()).then(txt=>{
+              const lines = txt.trim().split(/\r?\n/); if(lines.length<=1) return; const last = lines[lines.length-1].split(',');
+              const exit_time = last[4]; if(!exit_time) return; const idx = findIndexByTime(exit_time); if(idx==null) return; const xc = x0 + idx*(barW+gap) + gap + barW/2; ctx.strokeStyle='#9fb0d9'; ctx.beginPath(); ctx.moveTo(xc, y0); ctx.lineTo(xc, y0+H); ctx.stroke();
+            }).catch(()=>{});
+          }
+        }
+        window.drawCandles = drawCandles;
       })();
     </script>
     <script>
