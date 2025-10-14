@@ -1,0 +1,17 @@
+{
+  "last_10": [
+    {"date":"2025-10-01","direction":"long","entry_time":"2025-10-01T13:50:00-04:00","entry_price":17820,"exit_time":"2025-10-01T14:20:00-04:00","exit_price":17840,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-02","direction":"short","entry_time":"2025-10-02T10:05:00-04:00","entry_price":17810,"exit_time":"2025-10-02T10:40:00-04:00","exit_price":17790,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-03","direction":"long","entry_time":"2025-10-03T09:48:00-04:00","entry_price":17860,"exit_time":"2025-10-03T10:30:00-04:00","exit_price":17880,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-04","direction":"long","entry_time":"2025-10-04T09:51:00-04:00","entry_price":17900,"exit_time":"2025-10-04T10:25:00-04:00","exit_price":17920,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-07","direction":"short","entry_time":"2025-10-07T09:50:00-04:00","entry_price":17870,"exit_time":"2025-10-07T10:15:00-04:00","exit_price":17850,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-08","direction":"long","entry_time":"2025-10-08T09:47:00-04:00","entry_price":17930,"exit_time":"2025-10-08T10:20:00-04:00","exit_price":17950,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-09","direction":"short","entry_time":"2025-10-09T10:02:00-04:00","entry_price":18010,"exit_time":"2025-10-09T10:33:00-04:00","exit_price":17990,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-10","direction":"long","entry_time":"2025-10-10T09:49:00-04:00","entry_price":18000,"exit_time":"2025-10-10T10:10:00-04:00","exit_price":18020,"pnl_points":20,"pnl_usd":400,"win":1},
+    {"date":"2025-10-11","direction":"short","entry_time":"2025-10-11T10:01:00-04:00","entry_price":18050,"exit_time":"2025-10-11T10:46:00-04:00","exit_price":18056,"pnl_points":-6,"pnl_usd":-120,"win":0},
+    {"date":"2025-10-12","direction":"long","entry_time":"2025-10-12T09:52:00-04:00","entry_price":17970,"exit_time":"2025-10-12T10:28:00-04:00","exit_price":17990,"pnl_points":20,"pnl_usd":400,"win":1}
+  ],
+  "winrate": 0.9,
+  "total_pnl_points": 174.0,
+  "total_pnl_usd": 3480.0
+}
