@@ -1,0 +1,49 @@
+{
+  "status": "active",
+  "now_et": "2025-10-14T10:32:00-04:00",
+  "session_date": "2025-10-14",
+  "session_open": "2025-10-14T09:30:00-04:00",
+  "orb_end": "2025-10-14T09:45:00-04:00",
+  "trade_window_end": "2025-10-14T16:00:00-04:00",
+  "opening_range": {
+    "high": 18050.0,
+    "low": 17980.0,
+    "long_level": 18052.0,
+    "short_level": 17978.0
+  },
+  "params": {
+    "OFFSET_POINTS": 2.0,
+    "TRAIL_DISTANCE_POINTS": 15.0,
+    "TAKE_PROFIT_POINTS": 20.0,
+    "BREAKEVEN_TRIGGER_POINTS": 15.0,
+    "POINT_VALUE": 20.0
+  },
+  "trade": {
+    "open": true,
+    "direction": "long",
+    "entry_time": "2025-10-14T09:47:00-04:00",
+    "entry_price": 18052.0,
+    "stop_price": 18037.0,
+    "watermark_price": 18067.5,
+    "be_triggered": true,
+    "unrealized_pnl_points": 8.5,
+    "unrealized_pnl_usd": 170.0
+  },
+  "summary": {
+    "last_10": [
+      {"date":"2025-10-01","direction":"long","entry_time":"2025-10-01T13:50:00-04:00","entry_price":17820,"exit_time":"2025-10-01T14:20:00-04:00","exit_price":17840,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-02","direction":"short","entry_time":"2025-10-02T10:05:00-04:00","entry_price":17810,"exit_time":"2025-10-02T10:40:00-04:00","exit_price":17790,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-03","direction":"long","entry_time":"2025-10-03T09:48:00-04:00","entry_price":17860,"exit_time":"2025-10-03T10:30:00-04:00","exit_price":17880,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-04","direction":"long","entry_time":"2025-10-04T09:51:00-04:00","entry_price":17900,"exit_time":"2025-10-04T10:25:00-04:00","exit_price":17920,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-07","direction":"short","entry_time":"2025-10-07T09:50:00-04:00","entry_price":17870,"exit_time":"2025-10-07T10:15:00-04:00","exit_price":17850,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-08","direction":"long","entry_time":"2025-10-08T09:47:00-04:00","entry_price":17930,"exit_time":"2025-10-08T10:20:00-04:00","exit_price":17950,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-09","direction":"short","entry_time":"2025-10-09T10:02:00-04:00","entry_price":18010,"exit_time":"2025-10-09T10:33:00-04:00","exit_price":17990,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-10","direction":"long","entry_time":"2025-10-10T09:49:00-04:00","entry_price":18000,"exit_time":"2025-10-10T10:10:00-04:00","exit_price":18020,"pnl_points":20,"pnl_usd":400,"win":1},
+      {"date":"2025-10-11","direction":"short","entry_time":"2025-10-11T10:01:00-04:00","entry_price":18050,"exit_time":"2025-10-11T10:46:00-04:00","exit_price":18056,"pnl_points":-6,"pnl_usd":-120,"win":0},
+      {"date":"2025-10-12","direction":"long","entry_time":"2025-10-12T09:52:00-04:00","entry_price":17970,"exit_time":"2025-10-12T10:28:00-04:00","exit_price":17990,"pnl_points":20,"pnl_usd":400,"win":1}
+    ],
+    "winrate": 0.9,
+    "total_pnl_points": 174.0,
+    "total_pnl_usd": 3480.0
+  }
+}
