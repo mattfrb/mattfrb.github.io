@@ -9,7 +9,7 @@
     <link rel="prefetch" href="projets.html" />
     <style>
       html, body { height: 100%; margin: 0; }
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: hidden; opacity: 0; transition: opacity .25s ease; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: auto; opacity: 0; transition: opacity .25s ease; }
       #bg { position: fixed; inset: 0; z-index: 0; background: #0a0e12; }
 
       .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 0; text-align: left; }
@@ -45,12 +45,12 @@
       .credit, .credit-name{ display:none !important; }
       /* ORB dashboard styles (inline, replaces iframe) */
       .orb-wrap{ width:100%; height:100%; box-sizing:border-box; padding:12px 16px; }
-      .orb-grid{ display:grid; gap:16px; width:100%; height:100%; box-sizing:border-box; }
-      .card{ background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 14px; }
-      .row{ display:flex; flex-wrap:wrap; gap:12px }
-      .metric{ flex:1 1 160px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:10px }
-      .label{ font-size:12px; opacity:.8 }
-      .value{ font-size:20px; margin-top:4px }
+      .orb-grid{ display:grid; gap:12px; width:100%; height:100%; box-sizing:border-box; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      .card{ background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 12px; }
+      .row{ display:flex; flex-wrap:wrap; gap:10px }
+      .metric{ flex:1 1 160px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:8px }
+      .label{ font-size:11px; opacity:.8 }
+      .value{ font-size:18px; margin-top:4px }
       .green{ color:#4caf50 } .red{ color:#f44336 }
       table{ width:100%; border-collapse:collapse }
       th,td{ border-bottom:1px solid rgba(255,255,255,0.12); padding:8px 6px; text-align:left }
@@ -64,7 +64,7 @@
       <div class="topbar">
         <h1 id="title" style="margin:0; font-size:20px;">Algo Bot</h1>
       </div>
-      <div id="dash-area" style="height: calc(100vh - var(--topbar-h) - var(--footer-h));">
+      <div id="dash-area" style="height: calc(100vh - var(--topbar-h) - var(--footer-h)); overflow:auto;">
         <div class="orb-wrap">
           <div class="orb-grid">
             <section class="card" id="status-card">
