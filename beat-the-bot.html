@@ -1,25 +1,45 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Beat the Market â€” Matthieu Farbos</title>
-    <meta name="description" content="Beat the Market â€” miniâ€‘jeu de trading simulÃ© (stop & take profit)." />
+    <title>Beat the Market — Matthieu Farbos</title>
+    <meta name="description" content="Beat the Market — mini-jeu de trading simule (stop & take profit)." />
     <link rel="prefetch" href="index.html" />
     <link rel="prefetch" href="projets.html" />
     <style>
       html, body { height: 100%; margin: 0; }
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: hidden; opacity: 0; transition: opacity .25s ease; }
-      #bg { position: fixed; inset: 0; z-index: 0; background: #0a0e12; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0a0e12; color: #fff; overflow: hidden; opacity: 0; transition: opacity .25s ease; }
 
+      /* Layout */
       .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 0; }
+      .chart-wrap { position: fixed; left: 8px; top: 8px; bottom: 56px; right: 296px; background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+      #chart { display: block; width: 100%; height: 100%; border-radius: 8px; }
 
-      /* Credits */
-      .credit { position: fixed; right: 8px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.65; }
-      .credit a { color: #fff; }
+      .panel { position: fixed; right: 8px; top: 8px; bottom: 56px; z-index: 26; width: 280px; display: flex; flex-direction: column; gap: 10px; overflow: auto; background: rgba(14,18,24,0.82); border: 1px solid rgba(255,255,255,0.12); padding: 10px 12px; border-radius: 12px; font-size: 14px; }
+      .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .row.stack { display: grid; grid-template-columns: 1fr; gap: 4px; align-items: start; }
+      .label { opacity: .8; }
+      .value { font-weight: 600; }
+      .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
+      .actions { display: flex; gap: 8px; margin-top: auto; align-items: center; }
+      .inputs { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
+      .inputs input[type="number"] { width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+      .levels { display:inline-block; opacity:.85; font-size:12px; }
+
+      .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; }
+      .btn:hover { background: rgba(255,255,255,0.12); }
+      .btn.buy { border-color: rgba(0,200,120,0.6); background: rgba(0,200,120,0.2); }
+      .btn.buy:hover { background: rgba(0,200,120,0.3); }
+      .btn.sell { border-color: rgba(240,80,80,0.6); background: rgba(240,80,80,0.2); }
+      .btn.sell:hover { background: rgba(240,80,80,0.3); }
+      .pos { opacity: .9; }
+
+      .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
+      .btn-back:hover { background: rgba(255,255,255,0.12); }
+
       .credit-name { position: fixed; left: 28px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.75; }
 
-      /* Footer */
       .footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(10,14,18,0.72); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px; }
       .footer .links { display: flex; gap: 16px; align-items: center; }
       .footer a { color: #fff; text-decoration: none; opacity: 0.9; }
@@ -30,49 +50,9 @@
       .footer .lang button:hover { background: rgba(255,255,255,0.12); }
       .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
 
-      /* Game UI */
-      .game { width: calc(100vw - 320px); max-width: none; }
-      .chart-wrap { position: fixed; left: 8px; top: 8px; bottom: 56px; right: 296px; background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
-      #chart { display: block; width: 100%; height: 480px; border-radius: 8px; }
-
-      .controls { margin-top: 14px; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
-      .controls label { opacity: 0.8; }
-      .controls input[type="number"] { width: 90px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
-      .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; }
-      .btn:hover { background: rgba(255,255,255,0.12); }
-      .btn.buy { border-color: rgba(0,200,120,0.6); background: rgba(0,200,120,0.2); }
-      .btn.buy:hover { background: rgba(0,200,120,0.3); }
-      .btn.sell { border-color: rgba(240,80,80,0.6); background: rgba(240,80,80,0.2); }
-      .btn.sell:hover { background: rgba(240,80,80,0.3); }
-      .pos { opacity: 0.9; margin-left: 8px; }
-      .levels { display:inline-block; opacity:.8; margin-left:10px; font-size:12px; }
-
-      .hud { display: none; }
-      .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
-      .btn-back:hover { background: rgba(255,255,255,0.12); }
-
-      /* Left panel matching requested order */
-      .panel {
-        position: fixed; right: 8px; top: 8px; bottom: 56px; z-index: 26;
-        display: flex; flex-direction: column; gap: 10px; overflow: auto;
-        background: rgba(14,18,24,0.82);
-        border: 1px solid rgba(255,255,255,0.12);
-        padding: 10px 12px; border-radius: 12px;
-        width: min(280px, 92vw);
-        font-size: 14px;
-      }
-      .panel .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-      .panel .row.stack { display: grid; grid-template-columns: 1fr; gap: 4px; align-items: start; }
-      .panel .label { opacity: .8; min-width: 110px; }
-      .panel .value { font-weight: 600; flex-basis: 100%; }
-      .panel .actions { display: flex; gap: 8px; margin-top: auto; }
-      .panel .inputs { display: grid; grid-template-columns: auto 90px; gap: 6px 10px; align-items: center; }
-      .panel .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
-
       @media (max-width: 760px) {
-        .game { width: 100vw; }
-        .panel { right: 8px; left: 8px; width: auto; }
         .chart-wrap { right: 8px; }
+        .panel { right: 8px; left: 8px; width: auto; }
       }
     </style>
   </head>
@@ -80,44 +60,36 @@
     <div id="bg"></div>
 
     <main class="overlay">
-      <div class="game" id="game">
-        <div class="hud hud-top-right" id="hud-top">
-          <div><span id="lbl-equity">Ã‰quitÃ©</span>: <strong id="equity">â€”</strong></div>
-          <div><span id="lbl-unreal">PNL latent</span>: <strong id="unrealized">â€”</strong></div>
-        </div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
 
-        <div class="chart-wrap">
-          <canvas id="chart"></canvas>
+      <div class="panel" id="panel">
+        <a class="btn-back" href="projets.html" id="back-link">&larr; Retour aux projets</a>
+        <div class="row stack"><span class="label" id="lbl-equity-2">Equite</span><span class="value" id="equity">-</span></div>
+        <div class="row stack"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">-</span></div>
+        <div class="row stack" id="stats-row">
+          <span class="label" id="lbl-stats">Stats</span>
+          <span class="value" id="stats">Winrate: -<br>Longs: 0 | Shorts: 0</span>
         </div>
-
-        
-          <div class="inputs">
-            <label for="tpPct" id="lbl-tp">TP (%)</label>
-            <input type="number" id="tpPct" min="0" step="0.1" value="4" />
-            <label for="stopPct" id="lbl-stop">Stop (%)</label>
-            <input type="number" id="stopPct" min="0" step="0.1" value="2" />
-            <label for="qty" id="lbl-qty">QuantitÃ©</label>
-            <input type="number" id="qty" min="1" value="1" />
-            <label>Niveaux</label>
-            <span class="levels" id="levels">SL: â€” | TP: â€”</span>
-          </div>
-          <div class="panel" id="panel">
-          <a class="btn-back" href="projets.html" id="back-link">â† Retour aux projets</a>
-          <div class="row"><span class="label" id="lbl-equity-2">Ã‰quitÃ©</span><span class="value" id="equity">â€”</span></div>
-          <div class="row"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">â€”</span></div>
-          <div class="row" id="stats-row"><span class="label" id="lbl-stats">Stats</span><span class="value" id="stats">Winrate: â€” | Longs: 0 | Shorts: 0</span></div>
-          <div class="divider"></div>
-          <div class="row actions">
-            <button id="buy" class="btn buy">Acheter</button>
-            <button id="sell" class="btn sell">Vendre</button>
-            <span class="pos" id="pos">Flat â€”</span>
-          </div>
+        <div class="divider"></div>
+        <div class="row actions">
+          <button id="buy" class="btn buy">Acheter</button>
+          <button id="sell" class="btn sell">Vendre</button>
+          <span class="pos" id="pos">Flat -</span>
+        </div>
+        <div class="inputs">
+          <label for="tpPct" id="lbl-tp">TP (%)</label>
+          <input type="number" id="tpPct" min="0" step="0.1" value="4" />
+          <label for="stopPct" id="lbl-stop">Stop (%)</label>
+          <input type="number" id="stopPct" min="0" step="0.1" value="2" />
+          <label for="qty" id="lbl-qty">Quantite</label>
+          <input type="number" id="qty" min="1" value="1" />
+          <label>Niveaux</label>
+          <span class="levels" id="levels">SL: - | TP: -</span>
         </div>
       </div>
     </main>
 
-    <div class="credit">DonnÃ©es et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
-    <div class="credit-name">Â© Matthieu Farbos</div>
+    <div class="credit-name">© Matthieu Farbos</div>
 
     <nav class="footer" aria-label="Navigation bas de page">
       <div class="links">
@@ -131,26 +103,20 @@
       </div>
     </nav>
 
-    <!-- No TradingView script needed on this page background -->
     <script>
-      // Seamless page transitions (fade)
+      // Transitions
       function setupTransitions() {
         requestAnimationFrame(() => { document.body.style.opacity = '1'; });
         document.querySelectorAll('a[href]').forEach(a => {
           const href = a.getAttribute('href');
           if (!href || href.startsWith('http') || href.startsWith('#') || a.target === '_blank') return;
-          a.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.body.style.opacity = '0';
-            setTimeout(() => { window.location.href = a.href; }, 200);
-          });
+          a.addEventListener('click', (e) => { e.preventDefault(); document.body.style.opacity = '0'; setTimeout(() => { window.location.href = a.href; }, 200); });
         });
       }
 
-      const SYMBOL = 'NASDAQ:GOOGL';
+      // Lang
       const storageKey = 'site.lang';
       let currentLang = (localStorage.getItem(storageKey) || 'fr');
-
       function setActiveButtons() {
         const frBtn = document.getElementById('btn-fr');
         const enBtn = document.getElementById('btn-en');
@@ -159,9 +125,6 @@
         frBtn.setAttribute('aria-pressed', String(currentLang === 'fr'));
         enBtn.setAttribute('aria-pressed', String(currentLang === 'en'));
       }
-
-      function initChart() { /* disabled */ }
-
       function applyLanguage(lang) {
         currentLang = (lang === 'en') ? 'en' : 'fr';
         localStorage.setItem(storageKey, currentLang);
@@ -169,63 +132,25 @@
         const navHome = document.getElementById('nav-home');
         const navProjects = document.getElementById('nav-projects');
         const langLabel = document.querySelector('.lang label');
-        const back = document.getElementById('back-link');
         const lQty = document.getElementById('lbl-qty');
         const lStop = document.getElementById('lbl-stop');
         const lTp = document.getElementById('lbl-tp');
-        const btnBuy = document.getElementById('buy');
-        const btnSell = document.getElementById('sell');
-        const lEquity = document.getElementById('lbl-equity');
-        const lUnreal = document.getElementById('lbl-unreal');
-        const lReal = document.getElementById('lbl-real');
-        const lCash = document.getElementById('lbl-cash');
+        const lEquity = document.getElementById('lbl-equity-2');
+        const lUnreal = document.getElementById('lbl-unreal-2');
         if (currentLang === 'fr') {
-          navHome.textContent = 'Accueil';
-          navProjects.textContent = 'Projets';
-          langLabel.textContent = 'Langue:';
-          back.textContent = 'â† Retour aux projets';
-          lQty.textContent = 'QuantitÃ©';
-          lStop.textContent = 'Stop (%)';
-          lTp.textContent = 'TP (%)';
-          btnBuy.textContent = 'Acheter';
-          btnSell.textContent = 'Vendre';
-          lEquity.textContent = 'Ã‰quitÃ©';
-          lUnreal.textContent = 'PNL latent';
-          lReal.textContent = 'PNL rÃ©alisÃ©';
-          lCash.textContent = 'TrÃ©sorerie';
+          navHome.textContent = 'Accueil'; navProjects.textContent = 'Projets'; langLabel.textContent = 'Langue:';
+          lQty.textContent = 'Quantite'; lStop.textContent = 'Stop (%)'; lTp.textContent = 'TP (%)';
+          lEquity.textContent = 'Equite'; lUnreal.textContent = 'PNL latent';
         } else {
-          navHome.textContent = 'Home';
-          navProjects.textContent = 'Projects';
-          langLabel.textContent = 'Language:';
-          back.textContent = 'â† Back to projects';
-          lQty.textContent = 'Quantity';
-          lStop.textContent = 'Stop (%)';
-          lTp.textContent = 'Take Profit (%)';
-          btnBuy.textContent = 'Buy';
-          btnSell.textContent = 'Sell';
-          lEquity.textContent = 'Equity';
-          lUnreal.textContent = 'Unrealized PnL';
-          lReal.textContent = 'Realized PnL';
-          lCash.textContent = 'Cash';
+          navHome.textContent = 'Home'; navProjects.textContent = 'Projects'; langLabel.textContent = 'Language:';
+          lQty.textContent = 'Quantity'; lStop.textContent = 'Stop (%)'; lTp.textContent = 'Take Profit (%)';
+          lEquity.textContent = 'Equity'; lUnreal.textContent = 'Unrealized PnL';
         }
-        if (window.TradingView) initChart();
       }
 
-      if (window.TradingView) { initChart(); }
-      else { window.addEventListener('load', initChart); }
-
-      window.addEventListener('DOMContentLoaded', function() {
-        setupTransitions();
-        setActiveButtons();
-        applyLanguage(currentLang);
-        updateStats();
-        document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
-        document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
-      });
-
-      // --- Simple market simulation + PnL, Stop/TP ---
+      // Simulation + PnL + Stops/TP
       const state = { price: 100, position: 0, avg: 0, cash: 50000, realized: 0, stopPx: null, tpPx: null };
-      let tradeSide = null; // 'long' | 'short' | null
+      let tradeSide = null; // 'long' | 'short'
       let tradesTotal = 0, tradesWins = 0, tradesLong = 0, tradesShort = 0;
       const candles = [];
       const TF = 5000; // 5s per candle
@@ -236,35 +161,27 @@
         const tp = parseFloat(document.getElementById('tpPct').value || '0');
         return { sp: Math.max(0, sp), tp: Math.max(0, tp) };
       }
-
       function recalcStops() {
         if (state.position === 0 || !state.avg) { state.stopPx = null; state.tpPx = null; updateLevels(); return; }
         const { sp, tp } = getPercents();
         const avg = state.avg;
-        if (state.position > 0) {
-          state.stopPx = sp ? avg * (1 - sp/100) : null;
-          state.tpPx   = tp ? avg * (1 + tp/100) : null;
-        } else if (state.position < 0) {
-          state.stopPx = sp ? avg * (1 + sp/100) : null;
-          state.tpPx   = tp ? avg * (1 - tp/100) : null;
-        }
+        if (state.position > 0) { state.stopPx = sp ? avg * (1 - sp/100) : null; state.tpPx = tp ? avg * (1 + tp/100) : null; }
+        else { state.stopPx = sp ? avg * (1 + sp/100) : null; state.tpPx = tp ? avg * (1 - tp/100) : null; }
         updateLevels();
       }
-
       function updateLevels() {
         const el = document.getElementById('levels');
-        const sl = state.stopPx ? state.stopPx.toFixed(2) : 'â€”';
-        const tp = state.tpPx ? state.tpPx.toFixed(2) : 'â€”';
+        const sl = state.stopPx ? state.stopPx.toFixed(2) : '-';
+        const tp = state.tpPx ? state.tpPx.toFixed(2) : '-';
         el.textContent = `SL: ${sl} | TP: ${tp}`;
       }
 
       function nextPrice(p) {
-        // Bigger, more random moves with occasional jumps
         const vol = 2.0 + Math.random() * 1.5; // 2.0..3.5
         const drift = (Math.random() - 0.5) * vol;
         const revert = (100 - p) * 0.0015;
         let np = p + drift + revert;
-        if (Math.random() < 0.06) { np += (Math.random() - 0.5) * 8; }
+        if (Math.random() < 0.06) np += (Math.random() - 0.5) * 8; // jump
         return Math.max(1, np);
       }
 
@@ -277,50 +194,30 @@
           lastCandleTime = now;
         } else {
           const k = candles[candles.length - 1];
-          k.c = state.price;
-          k.h = Math.max(k.h, state.price);
-          k.l = Math.min(k.l, state.price);
+          k.c = state.price; k.h = Math.max(k.h, state.price); k.l = Math.min(k.l, state.price);
         }
-        checkStops();
-        draw();
-        updateHud();
+        checkStops(); draw(); updateHud();
       }
 
       function closeAll(px) {
         if (state.position === 0) return;
         const qty = Math.abs(state.position);
         const before = state.realized;
-        if (state.position > 0) {
-          state.realized += qty * (px - state.avg);
-          state.cash += px * qty;
-        } else {
-          state.realized += qty * (state.avg - px);
-          state.cash -= px * qty;
-        }
+        if (state.position > 0) { state.realized += qty * (px - state.avg); state.cash += px * qty; }
+        else { state.realized += qty * (state.avg - px); state.cash -= px * qty; }
         state.position = 0; state.avg = 0; state.stopPx = null; state.tpPx = null; updateLevels();
-        const pnl = state.realized - before;
-        recordTrade(tradeSide, pnl);
+        const pnl = state.realized - before; recordTrade(tradeSide, pnl);
       }
-
       function checkStops() {
-        if (state.position === 0) return;
-        const px = state.price;
-        if (state.position > 0) {
-          if (state.stopPx && px <= state.stopPx) { closeAll(px); return; }
-          if (state.tpPx && px >= state.tpPx) { closeAll(px); return; }
-        } else if (state.position < 0) {
-          if (state.stopPx && px >= state.stopPx) { closeAll(px); return; }
-          if (state.tpPx && px <= state.tpPx) { closeAll(px); return; }
-        }
+        if (state.position === 0) return; const px = state.price;
+        if (state.position > 0) { if (state.stopPx && px <= state.stopPx) return closeAll(px); if (state.tpPx && px >= state.tpPx) return closeAll(px); }
+        else { if (state.stopPx && px >= state.stopPx) return closeAll(px); if (state.tpPx && px <= state.tpPx) return closeAll(px); }
       }
 
       function formatMoney(x) {
-        try {
-          return (currentLang === 'fr' ? x.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
-                                       : x.toLocaleString('en-US', { style: 'currency', currency: 'USD' }));
-        } catch { return x.toFixed(2); }
+        try { return (currentLang === 'fr' ? x.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : x.toLocaleString('en-US', { style: 'currency', currency: 'USD' })); }
+        catch { return x.toFixed(2); }
       }
-
       function updateHud() {
         const unreal = state.position * (state.price - state.avg);
         const equity = state.cash + state.realized + unreal;
@@ -329,69 +226,29 @@
         const posEl = document.getElementById('pos');
         const qty = Math.abs(state.position);
         const dir = state.position > 0 ? 'Long' : state.position < 0 ? 'Short' : 'Flat';
-        posEl.textContent = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : 'â€”'}`;
+        posEl.textContent = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : '-'}`;
       }
-
       function updateStats() {
         const winrate = tradesTotal ? Math.round((tradesWins / tradesTotal) * 100) : 0;
-        const line1 = `Winrate: ${winrate}%`;
-        const line2 = `Longs: ${tradesLong} | Shorts: ${tradesShort}`;
-        const el = document.getElementById('stats'); if (el) el.innerHTML = `${line1}<br>${line2}`;
+        const el = document.getElementById('stats'); if (el) el.innerHTML = `Winrate: ${winrate}%<br>Longs: ${tradesLong} | Shorts: ${tradesShort}`;
       }
-
       function recordTrade(side, pnl) {
-        tradesTotal += 1;
-        if (pnl > 0) tradesWins += 1;
-        if (side === 'long') tradesLong += 1; else if (side === 'short') tradesShort += 1;
-        tradeSide = null;
-        updateStats();
+        tradesTotal += 1; if (pnl > 0) tradesWins += 1; if (side === 'long') tradesLong += 1; else if (side === 'short') tradesShort += 1; tradeSide = null; updateStats();
       }
-
       function placeOrder(side, qty) {
-        qty = Math.max(1, Math.floor(qty));
-        const px = state.price;
-        const prevPos = state.position;
+        qty = Math.max(1, Math.floor(qty)); const px = state.price; const prevPos = state.position;
         if (side === 'buy') {
-          if (state.position >= 0) {
-            const newPos = state.position + qty;
-            state.avg = (state.avg * state.position + px * qty) / (newPos || 1);
-            state.position = newPos;
-            state.cash -= px * qty;
-          } else {
-            const closeQty = Math.min(qty, -state.position);
-            const before = state.realized;
-            state.realized += closeQty * (state.avg - px);
-            state.position += closeQty;
-            state.cash -= px * closeQty;
-            const rem = qty - closeQty;
-            if (rem > 0) { state.avg = px; state.position += rem; state.cash -= px * rem; }
-            else if (state.position === 0) { state.avg = 0; }
-            if (state.position === 0) { recordTrade('short', state.realized - before); }
-          }
-        } else if (side === 'sell') {
-          if (state.position <= 0) {
-            const newPos = state.position - qty;
-            state.avg = (Math.abs(state.avg * state.position) + px * qty) / (Math.abs(newPos) || 1);
-            state.position = newPos;
-            state.cash += px * qty;
-          } else {
-            const closeQty = Math.min(qty, state.position);
-            const before = state.realized;
-            state.realized += closeQty * (px - state.avg);
-            state.position -= closeQty;
-            state.cash += px * closeQty;
-            const rem = qty - closeQty;
-            if (rem > 0) { state.avg = px; state.position -= rem; state.cash += px * rem; }
-            else if (state.position === 0) { state.avg = 0; }
-            if (state.position === 0) { recordTrade('long', state.realized - before); }
-          }
+          if (state.position >= 0) { const newPos = state.position + qty; state.avg = (state.avg * state.position + px * qty) / (newPos || 1); state.position = newPos; state.cash -= px * qty; }
+          else { const closeQty = Math.min(qty, -state.position); const before = state.realized; state.realized += closeQty * (state.avg - px); state.position += closeQty; state.cash -= px * closeQty; const rem = qty - closeQty; if (rem > 0) { state.avg = px; state.position += rem; state.cash -= px * rem; } else if (state.position === 0) { state.avg = 0; } if (state.position === 0) { recordTrade('short', state.realized - before); } }
+        } else {
+          if (state.position <= 0) { const newPos = state.position - qty; state.avg = (Math.abs(state.avg * state.position) + px * qty) / (Math.abs(newPos) || 1); state.position = newPos; state.cash += px * qty; }
+          else { const closeQty = Math.min(qty, state.position); const before = state.realized; state.realized += closeQty * (px - state.avg); state.position -= closeQty; state.cash += px * closeQty; const rem = qty - closeQty; if (rem > 0) { state.avg = px; state.position -= rem; state.cash += px * rem; } else if (state.position === 0) { state.avg = 0; } if (state.position === 0) { recordTrade('long', state.realized - before); } }
         }
         if (prevPos === 0 && state.position !== 0) { tradeSide = state.position > 0 ? 'long' : 'short'; }
-        recalcStops();
-        updateHud();
+        recalcStops(); updateHud();
       }
 
-      // Chart drawing
+      // Chart
       const canvas = document.getElementById('chart');
       const ctx = canvas.getContext('2d');
       function resize() {
@@ -399,83 +256,35 @@
         const dpr = window.devicePixelRatio || 1;
         const w = Math.max(0, Math.floor(wrap.clientWidth));
         const h = Math.max(0, Math.floor(wrap.clientHeight));
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        draw();
+        canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+        canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0); draw();
       }
-
       function draw() {
-        const w = canvas.clientWidth; const h = canvas.clientHeight;
-        ctx.clearRect(0,0,w,h);
-        // background
-        ctx.fillStyle = 'rgba(14,18,24,0.9)';
-        ctx.fillRect(0,0,w,h);
-        // grid
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
-        for (let i=1;i<6;i++){ const y = (h/6)*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
-
-        const visible = Math.min(candles.length, 100);
-        const start = Math.max(0, candles.length - visible);
-        const view = candles.slice(start);
-        if (view.length === 0) return;
-        let min = Infinity, max = -Infinity;
-        for (const k of view) { if (k.l < min) min = k.l; if (k.h > max) max = k.h; }
-        const pad = (max - min) * 0.1 || 1; min -= pad; max += pad;
-        const gap = 2;
-        const xw = Math.max(3, Math.floor(w / (view.length + 1)) - gap);
-        view.forEach((k, i) => {
-          const x = i * (xw + gap) + gap; // one-candle gap on the right
-          const y = (v)=> h - (v - min) / (max - min) * h;
-          const up = k.c >= k.o;
-          const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)';
-          ctx.strokeStyle = color;
-          ctx.fillStyle = color; // body same color as wick
-          // wick
-          ctx.beginPath(); ctx.moveTo(x + xw/2, y(k.h)); ctx.lineTo(x + xw/2, y(k.l)); ctx.stroke();
-          // body
-          const y1 = y(k.o), y2 = y(k.c);
-          const top = Math.min(y1,y2), bh = Math.max(2, Math.abs(y1-y2));
-          ctx.fillRect(x, top, xw, bh);
-        });
-
-        // last price line
-        const lp = state.price; const y = (v)=> h - (v - min) / (max - min) * h; const ly = y(lp);
-        ctx.strokeStyle = 'rgba(77,163,255,0.4)'; ctx.setLineDash([6,6]);
-        ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(w, ly); ctx.stroke(); ctx.setLineDash([]);
-
-        // stop/tp lines
+        const w = canvas.clientWidth; const h = canvas.clientHeight; ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = 'rgba(14,18,24,0.9)'; ctx.fillRect(0,0,w,h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; for (let i=1;i<6;i++){ const y=(h/6)*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+        const visible = Math.min(candles.length, 100); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
+        let min = Infinity, max = -Infinity; for (const k of view){ if (k.l < min) min = k.l; if (k.h > max) max = k.h; } const pad = (max-min)*0.1 || 1; min -= pad; max += pad;
+        const gap = 2; const xw = Math.max(3, Math.floor(w / (view.length + 1)) - gap);
+        view.forEach((k,i)=>{ const x = i * (xw + gap) + gap; const y = v => h - (v - min) / (max - min) * h; const up = k.c >= k.o; const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)'; ctx.strokeStyle = color; ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + xw/2, y(k.h)); ctx.lineTo(x + xw/2, y(k.l)); ctx.stroke(); const y1=y(k.o), y2=y(k.c); const top=Math.min(y1,y2), bh=Math.max(2, Math.abs(y1-y2)); ctx.fillRect(x, top, xw, bh); });
+        const lp = state.price; const y = v => h - (v - min) / (max - min) * h; const ly = y(lp); ctx.strokeStyle = 'rgba(77,163,255,0.4)'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(w, ly); ctx.stroke(); ctx.setLineDash([]);
         if (state.position !== 0) {
-          if (state.stopPx) {
-            ctx.strokeStyle = 'rgba(240,80,80,0.6)'; ctx.setLineDash([4,6]);
-            const sy = y(state.stopPx); ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(w, sy); ctx.stroke(); ctx.setLineDash([]);
-          }
-          if (state.tpPx) {
-            ctx.strokeStyle = 'rgba(0,200,120,0.6)'; ctx.setLineDash([4,6]);
-            const ty = y(state.tpPx); ctx.beginPath(); ctx.moveTo(0, ty); ctx.lineTo(w, ty); ctx.stroke(); ctx.setLineDash([]);
-          }
+          if (state.stopPx) { ctx.strokeStyle = 'rgba(240,80,80,0.6)'; ctx.setLineDash([4,6]); const sy = y(state.stopPx); ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(w, sy); ctx.stroke(); ctx.setLineDash([]); }
+          if (state.tpPx) { ctx.strokeStyle = 'rgba(0,200,120,0.6)'; ctx.setLineDash([4,6]); const ty = y(state.tpPx); ctx.beginPath(); ctx.moveTo(0, ty); ctx.lineTo(w, ty); ctx.stroke(); ctx.setLineDash([]); }
         }
       }
 
-      document.getElementById('buy').addEventListener('click', () => {
-        const qty = parseInt(document.getElementById('qty').value || '1', 10);
-        placeOrder('buy', qty);
-      });
-      document.getElementById('sell').addEventListener('click', () => {
-        const qty = parseInt(document.getElementById('qty').value || '1', 10);
-        placeOrder('sell', qty);
-      });
-
-      // Update stops when percent inputs change
+      document.getElementById('buy').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
+      document.getElementById('sell').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('sell', qty); });
       document.getElementById('stopPct').addEventListener('input', recalcStops);
       document.getElementById('tpPct').addEventListener('input', recalcStops);
 
       window.addEventListener('resize', resize);
-      resize();
-      for (let i=0;i<100;i++){ tick(); }
-      setInterval(tick, 400);
+      window.addEventListener('DOMContentLoaded', function() {
+        setupTransitions(); setActiveButtons(); applyLanguage(currentLang); updateStats(); resize();
+        for (let i=0;i<100;i++){ tick(); } setInterval(tick, 400);
+      });
     </script>
   </body>
   </html>
