@@ -317,7 +317,7 @@
         ctx.fillStyle = 'rgba(14,18,24,0.9)'; ctx.fillRect(0,0,w,h);
         // grid lines within plot area
         ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; for (let i=1;i<6;i++){ const gy=(h/6)*i; ctx.beginPath(); ctx.moveTo(plotL,gy); ctx.lineTo(plotR,gy); ctx.stroke(); }
-        const visible = Math.min(candles.length, 100); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
+        const visible = Math.min(candles.length, 80); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
         let min = Infinity, max = -Infinity; for (const k of view){ if (k.l < min) min = k.l; if (k.h > max) max = k.h; } const pad = (max-min)*0.1 || 1; min -= pad; max += pad;
         const y = v => h - (v - min) / (max - min) * h;
         const gap = 2; const xw = Math.max(3, Math.floor(plotW / (view.length + 1)) - gap);
