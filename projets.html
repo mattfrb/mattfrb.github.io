@@ -137,6 +137,9 @@
           navProjects.textContent = 'Projects';
           langLabel.textContent = 'Language:';
         }
+        // Update Algo Bot card subtitle wording on language change
+        var abSub = document.querySelector('a.card[href="algo-bot.html"] .card-sub');
+        if (abSub) { abSub.textContent = (currentLang === 'fr' ? 'Suivi live ORB NQ - cliquez pour ouvrir' : 'Live ORB NQ - click to open'); }
         if (window.TradingView) initChart();
       }
 
@@ -147,6 +150,9 @@
         setupTransitions();
         setActiveButtons();
         applyLanguage(currentLang);
+        // Ensure Algo Bot card points to live stats wording
+        var abSub = document.querySelector('a.card[href="algo-bot.html"] .card-sub');
+        if (abSub) { abSub.textContent = (currentLang === 'fr' ? 'Suivi live ORB NQ - cliquez pour ouvrir' : 'Live ORB NQ - click to open'); }
         document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
         document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
       });
