@@ -95,16 +95,15 @@
               </div>
               <div class="label" style="margin-top:8px">Un seul trade par séance; sortie sur TP, trailing stop ou fin de fenêtre.</div>
             </section>
-          <section class="card">
-            <h3 style="margin:0 0 8px">Derniers 10 trades</h3>
-            <div class="label" style="margin-bottom:6px">Source: opening_range_reports/summary_last_10_days.csv</div>
-            <table id="tbl">
-              <thead>
-                <tr><th>Date</th><th>Dir</th><th>Entrée</th><th>Sortie</th><th>Pts</th><th>$</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </section>
+            <section class="card">
+              <h3 style="margin:0 0 8px">Données & Instrument</h3>
+              <div class="row">
+                <div class="metric"><div class="label">Produit</div><div class="value">E-mini Nasdaq 100 (NQ futures)</div></div>
+                <div class="metric"><div class="label">Symbole (Yahoo)</div><div class="value">NQ=F</div></div>
+                <div class="metric"><div class="label">Source données</div><div class="value">yfinance 1m (retardé) via GitHub Actions</div></div>
+                <div class="metric"><div class="label">Session</div><div class="value">9:30–16:00 ET (US/Eastern)</div></div>
+              </div>
+            </section>
           <section class="card">
             <h3 style="margin:0 0 8px">Graphiques des trades</h3>
             <div class="charts">
