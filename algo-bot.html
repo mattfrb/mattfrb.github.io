@@ -32,6 +32,16 @@
 
       .btn-back { margin-top: 16px; display: inline-block; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
       .btn-back:hover { background: rgba(255,255,255,0.12); }
+
+      /* ORB embed */
+      .orb-wrap{ position:relative; border:1px solid rgba(255,255,255,0.12); border-radius:12px; overflow:hidden; background:rgba(255,255,255,0.02); }
+      .orb-frame{ width:100%; height:92vh; border:0; display:block; background:#0b1020; }
+      @media (max-width: 900px){ .orb-frame{ height:78vh; } }
+      @media (max-width: 600px){ .orb-frame{ height:70vh; } }
+      .orb-full-btn{ position:absolute; right:10px; top:10px; z-index:5; font-size:13px; padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.35); color:#fff; cursor:pointer; }
+      .orb-full-btn:hover{ background:rgba(255,255,255,0.15); }
+      /* Fallback CSS fullscreen */
+      .orb-fixed{ position:fixed !important; inset:0 !important; z-index:9999 !important; border-radius:0 !important; border:none !important; }
     </style>
   </head>
   <body>
@@ -42,8 +52,9 @@
         <h1 id="title">Algo Bot</h1>
         <p class="sub" id="subtitle">Suivi live ORB NQ</p>
         <div style="height:16px"></div>
-        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.02)">
-          <iframe src="orb-nq.html" title="ORB NQ Dashboard" style="width:100%;height:88vh;border:0;display:block;background:#0b1020"></iframe>
+        <div class="orb-wrap" id="orbWrap">
+          <button type="button" class="orb-full-btn" id="orbFullBtn">Plein Ècran</button>
+          <iframe src="orb-nq.html" title="ORB NQ Dashboard" class="orb-frame" id="orbFrame"></iframe>
         </div>
         <div style="height:16px"></div>
         <a class="btn-back" href="projets.html" id="back-link">‚Üê Retour aux projets</a>
