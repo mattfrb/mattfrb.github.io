@@ -91,9 +91,9 @@
         <div class="stats row stack" id="stats-row">
           <span class="label" id="lbl-stats">Stats</span>
           <div>
-            <div>Winrate: <span id="stat-win">0</span>%</div>
-            <div>Longs: <span id="stat-longs">0</span></div>
-            <div>Shorts: <span id="stat-shorts">0</span></div>
+            <div><span id="lbl-winrate">Winrate</span>: <span id="stat-win">0</span>%</div>
+            <div><span id="lbl-longs">Longs</span>: <span id="stat-longs">0</span></div>
+            <div><span id="lbl-shorts">Shorts</span>: <span id="stat-shorts">0</span></div>
           </div>
         </div>
         <div class="divider"></div>
@@ -109,7 +109,7 @@
         <div class="inputs single">
           <div class="field"><label for="qty" id="lbl-qty">Quantite</label><input type="number" id="qty" min="1" step="1" inputmode="numeric" value="1" /></div>
         </div>
-        <div class="levels-row"><label>Niveaux</label><span class="levels" id="levels">SL: - | TP: -</span></div>
+        <div class="levels-row"><label id="lbl-levels">Niveaux</label><span class="levels" id="levels">SL: - | TP: -</span></div>
       </div>
       
     </main>
@@ -157,20 +157,55 @@
         const navHome = document.getElementById('nav-home');
         const navProjects = document.getElementById('nav-projects');
         const langLabel = document.querySelector('.lang label');
+        const back = document.getElementById('back-link');
         const lQty = document.getElementById('lbl-qty');
         const lStop = document.getElementById('lbl-stop');
         const lTp = document.getElementById('lbl-tp');
+        const btnBuy = document.getElementById('buy');
+        const btnSell = document.getElementById('sell');
         const lEquity = document.getElementById('lbl-equity-2');
         const lUnreal = document.getElementById('lbl-unreal-2');
+        const lStats = document.getElementById('lbl-stats');
+        const lWin = document.getElementById('lbl-winrate');
+        const lLongs = document.getElementById('lbl-longs');
+        const lShorts = document.getElementById('lbl-shorts');
+        const lLevels = document.getElementById('lbl-levels');
         if (currentLang === 'fr') {
-          navHome.textContent = 'Accueil'; navProjects.textContent = 'Projets'; langLabel.textContent = 'Langue:';
-          lQty.textContent = 'Quantite'; lStop.textContent = 'Stop (%)'; lTp.textContent = 'TP (%)';
-          lEquity.textContent = 'Equite'; lUnreal.textContent = 'PNL latent';
+          if (navHome) navHome.textContent = 'Accueil';
+          if (navProjects) navProjects.textContent = 'Projets';
+          if (langLabel) langLabel.textContent = 'Langue:';
+          if (back) back.textContent = '← Retour aux projets';
+          if (lQty) lQty.textContent = 'Quantite';
+          if (lStop) lStop.textContent = 'Stop (%)';
+          if (lTp) lTp.textContent = 'TP (%)';
+          if (btnBuy) btnBuy.textContent = 'Acheter';
+          if (btnSell) btnSell.textContent = 'Vendre';
+          if (lEquity) lEquity.textContent = 'Equite';
+          if (lUnreal) lUnreal.textContent = 'PNL latent';
+          if (lStats) lStats.textContent = 'Stats';
+          if (lWin) lWin.textContent = 'Winrate';
+          if (lLongs) lLongs.textContent = 'Longs';
+          if (lShorts) lShorts.textContent = 'Shorts';
+          if (lLevels) lLevels.textContent = 'Niveaux';
         } else {
-          navHome.textContent = 'Home'; navProjects.textContent = 'Projects'; langLabel.textContent = 'Language:';
-          lQty.textContent = 'Quantity'; lStop.textContent = 'Stop (%)'; lTp.textContent = 'Take Profit (%)';
-          lEquity.textContent = 'Equity'; lUnreal.textContent = 'Unrealized PnL';
+          if (navHome) navHome.textContent = 'Home';
+          if (navProjects) navProjects.textContent = 'Projects';
+          if (langLabel) langLabel.textContent = 'Language:';
+          if (back) back.textContent = '← Back to projects';
+          if (lQty) lQty.textContent = 'Quantity';
+          if (lStop) lStop.textContent = 'Stop (%)';
+          if (lTp) lTp.textContent = 'Take Profit (%)';
+          if (btnBuy) btnBuy.textContent = 'Buy';
+          if (btnSell) btnSell.textContent = 'Sell';
+          if (lEquity) lEquity.textContent = 'Equity';
+          if (lUnreal) lUnreal.textContent = 'Unrealized PnL';
+          if (lStats) lStats.textContent = 'Statistics';
+          if (lWin) lWin.textContent = 'Winrate';
+          if (lLongs) lLongs.textContent = 'Longs';
+          if (lShorts) lShorts.textContent = 'Shorts';
+          if (lLevels) lLevels.textContent = 'Levels';
         }
+        updateHud();
       }
 
       // Simulation + PnL + Stops/TP
