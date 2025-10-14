@@ -157,5 +157,14 @@
         document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
       });
     </script>
+    <script>
+      // Global language toggle wiring so FR/EN works consistently
+      (function() {
+        if (window.__globalLangWired) return; window.__globalLangWired = true;
+        function setActive(cur){ var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(!fr||!en) return; fr.classList.toggle('active',cur==='fr'); en.classList.toggle('active',cur==='en'); fr.setAttribute('aria-pressed',String(cur==='fr')); en.setAttribute('aria-pressed',String(cur==='en')); }
+        function setLang(lang){ var val=(lang==='en')?'en':'fr'; localStorage.setItem('site.lang',val); if(typeof applyLanguage==='function'){ applyLanguage(val); } else { location.reload(); } setActive(val); }
+        window.addEventListener('DOMContentLoaded', function(){ var cur=localStorage.getItem('site.lang')||'fr'; setActive(cur); var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(fr) fr.addEventListener('click', function(){ setLang('fr'); }); if(en) en.addEventListener('click', function(){ setLang('en'); }); });
+      })();
+    </script>
   </body>
   </html>
