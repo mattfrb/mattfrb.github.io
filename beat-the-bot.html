@@ -62,8 +62,9 @@
         font-size: 14px;
       }
       .panel .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .panel .row.stack { display: grid; grid-template-columns: 1fr; gap: 4px; align-items: start; }
       .panel .label { opacity: .8; min-width: 110px; }
-      .panel .value { font-weight: 600; }
+      .panel .value { font-weight: 600; flex-basis: 100%; }
       .panel .actions { display: flex; gap: 8px; margin-top: auto; }
       .panel .inputs { display: grid; grid-template-columns: auto 90px; gap: 6px 10px; align-items: center; }
       .panel .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
@@ -216,6 +217,7 @@
         setupTransitions();
         setActiveButtons();
         applyLanguage(currentLang);
+        updateStats();
         document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
         document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
       });
@@ -331,8 +333,9 @@
 
       function updateStats() {
         const winrate = tradesTotal ? Math.round((tradesWins / tradesTotal) * 100) : 0;
-        const s = `Winrate: ${winrate}% | Longs: ${tradesLong} | Shorts: ${tradesShort}`;
-        const el = document.getElementById('stats'); if (el) el.textContent = s;
+        const line1 = `Winrate: ${winrate}%`;
+        const line2 = `Longs: ${tradesLong} | Shorts: ${tradesShort}`;
+        const el = document.getElementById('stats'); if (el) el.innerHTML = `${line1}<br>${line2}`;
       }
 
       function recordTrade(side, pnl) {
