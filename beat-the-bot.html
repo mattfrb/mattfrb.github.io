@@ -329,10 +329,15 @@
           if (state.stopPx) { ctx.strokeStyle = 'rgba(240,80,80,0.6)'; ctx.setLineDash([4,6]); const sy = y(state.stopPx); ctx.beginPath(); ctx.moveTo(plotL, sy); ctx.lineTo(plotR, sy); ctx.stroke(); ctx.setLineDash([]); }
           if (state.tpPx) { ctx.strokeStyle = 'rgba(0,200,120,0.6)'; ctx.setLineDash([4,6]); const ty = y(state.tpPx); ctx.beginPath(); ctx.moveTo(plotL, ty); ctx.lineTo(plotR, ty); ctx.stroke(); ctx.setLineDash([]); }
         }
-        // Right price axis
+        // Right price axis (ticks every 10 units)
         ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plotR+0.5, 0); ctx.lineTo(plotR+0.5, h); ctx.stroke();
         ctx.fillStyle = 'rgba(220,230,255,0.9)'; ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        const ticks = 6; for (let i=0;i<=ticks;i++){ const val = min + (max - min) * (i / ticks); const tyc = y(val); ctx.beginPath(); ctx.moveTo(plotR, tyc); ctx.lineTo(plotR+6, tyc); ctx.stroke(); ctx.fillText(val.toFixed(2), plotR + 8, tyc); }
+        const STEP = 10; const startVal = Math.floor(min / STEP) * STEP; const endVal = Math.ceil(max / STEP) * STEP;
+        for (let val = startVal; val <= endVal; val += STEP) {
+          const tyc = y(val);
+          ctx.beginPath(); ctx.moveTo(plotR, tyc); ctx.lineTo(plotR+6, tyc); ctx.stroke();
+          ctx.fillText(Number.isInteger(val) ? val.toFixed(0) : val.toFixed(2), plotR + 8, tyc);
+        }
         // Last price label
         ctx.fillStyle = 'rgba(77,163,255,0.9)'; ctx.fillText(lp.toFixed(2), plotR + 8, ly);
       }
