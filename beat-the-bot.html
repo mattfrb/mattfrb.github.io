@@ -243,8 +243,9 @@
         const now = Date.now();
         if (!candles.length || now - lastCandleTime >= TF) {
           const o = candles.length ? candles[candles.length - 1].c : state.price;
-          // Keep at most 80 candles visible: drop oldest before adding the new one
-          if (candles.length >= 80) { candles.shift(); }
+          // Keep at most N candles (mobile: 30, desktop: 80)
+          const CAP = (window.innerWidth <= 640 ? 30 : 80);
+          if (candles.length >= CAP) { candles.shift(); }
           candles.push({ t: now, o, h: state.price, l: state.price, c: state.price });
           lastCandleTime = now;
         } else {
@@ -326,7 +327,8 @@
         ctx.fillStyle = 'rgba(14,18,24,0.9)'; ctx.fillRect(0,0,w,h);
         // grid lines within plot area
         ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; for (let i=1;i<6;i++){ const gy=(h/6)*i; ctx.beginPath(); ctx.moveTo(plotL,gy); ctx.lineTo(plotR,gy); ctx.stroke(); }
-        const visible = Math.min(candles.length, 80); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
+        const LIMIT = (window.innerWidth <= 640 ? 30 : 80);
+        const visible = Math.min(candles.length, LIMIT); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
         let min = Infinity, max = -Infinity; for (const k of view){ if (k.l < min) min = k.l; if (k.h > max) max = k.h; } const pad = (max-min)*0.1 || 1; min -= pad; max += pad;
         const y = v => h - (v - min) / (max - min) * h;
         const gap = (window.innerWidth <= 640 ? 3 : 2);
@@ -364,7 +366,8 @@
       window.addEventListener('resize', resize);
       window.addEventListener('DOMContentLoaded', function() {
         setupTransitions(); setActiveButtons(); applyLanguage(currentLang); updateStats(); resize();
-        seedCandles(80); // start with 80 historical candles
+        const SEED_N = (window.innerWidth <= 640 ? 30 : 80);
+        seedCandles(SEED_N); // start with 30 on mobile, 80 on desktop
         setInterval(tick, 400);
       });
     </script>
