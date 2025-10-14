@@ -69,12 +69,20 @@
       /* Mobile layout: panel as bottom drawer, chart above */
       @media (max-width: 640px) {
         :root { --mobile-panel-h: 44vh; }
-        .chart-wrap { left: var(--edge); right: var(--edge); top: var(--edge); bottom: calc(56px + var(--mobile-panel-h) + var(--gap)); }
-        .panel { left: var(--edge); right: var(--edge); width: auto; top: auto; bottom: 56px; height: var(--mobile-panel-h); }
+        .chart-wrap { left: var(--edge); right: var(--edge); top: var(--edge); bottom: calc(56px + var(--mobile-panel-h) + var(--gap)); transition: bottom .2s ease; }
+        .panel { left: var(--edge); right: var(--edge); width: auto; top: auto; bottom: 56px; height: var(--mobile-panel-h); transition: height .2s ease, padding .2s ease, border-color .2s ease; }
         .btn.big { padding: 12px 18px; font-size: 16px; border-radius: 12px; }
         .field { min-height: 34px; }
         .field label { line-height: 34px; }
         .field input[type="number"] { height: 32px; line-height: 32px; font-size: 16px; }
+        /* Toggle button visible only on mobile */
+        .panel-toggle { position: fixed; right: var(--edge); bottom: calc(56px + var(--gap)); z-index: 28; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 13px; }
+      }
+
+      /* Collapsed state on mobile: chart takes full height above footer */
+      @media (max-width: 640px) {
+        body.panel-collapsed .chart-wrap { bottom: 56px; }
+        body.panel-collapsed .panel { height: 0; padding: 0; border-color: transparent; overflow: hidden; }
       }
     </style>
   </head>
@@ -111,6 +119,7 @@
         </div>
         <div class="levels-row"><label>Niveaux</label><span class="levels" id="levels">SL: - | TP: -</span></div>
       </div>
+      <button class="panel-toggle" id="panelToggle" aria-expanded="true" style="display:none">Masquer panneau</button>
     </main>
 
     
@@ -361,6 +370,20 @@
       window.addEventListener('resize', resize);
       window.addEventListener('DOMContentLoaded', function() {
         setupTransitions(); setActiveButtons(); applyLanguage(currentLang); updateStats(); resize();
+        // On mobile, start with panel collapsed so all candles are visible
+        if (window.innerWidth <= 640) {
+          document.body.classList.add('panel-collapsed');
+          const btn = document.getElementById('panelToggle');
+          btn.style.display = 'inline-block';
+          btn.textContent = 'Afficher panneau';
+          btn.setAttribute('aria-expanded','false');
+          btn.addEventListener('click', () => {
+            const collapsed = document.body.classList.toggle('panel-collapsed');
+            btn.textContent = collapsed ? 'Afficher panneau' : 'Masquer panneau';
+            btn.setAttribute('aria-expanded', String(!collapsed));
+            resize();
+          });
+        }
         seedCandles(80); // start with 80 historical candles
         setInterval(tick, 400);
       });
