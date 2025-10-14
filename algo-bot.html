@@ -103,8 +103,11 @@
             </div>
           </section>
           <section class="card">
-            <h3 style="margin:0 0 8px">Cours du jour (NQ=F)</h3>
-            <div class="chartbox" style="height:360px"><canvas id="chart-today"></canvas></div>
+            <h3 style="margin:0 0 8px">Cours du jour (NQ)</h3>
+            <div class="chartbox" style="height:420px; position:relative;">
+              <div id="chart-tv" style="position:absolute; inset:8px 8px 8px 8px;"></div>
+              <canvas id="chart-today" style="position:absolute; inset:8px 8px 8px 8px;"></canvas>
+            </div>
           </section>
         </div>
       </div>
@@ -272,6 +275,28 @@
             const canvasToday = document.getElementById('chart-today');
             if (today && canvasToday) {
               drawCandles(canvasToday, today.candles||[], latest.opening_range||{}, latest.trade||{}, latest.session_date);
+            }
+            // Try TradingView live widget (primary), keep canvas as fallback
+            if (document.getElementById('chart-tv')) {
+              function bootTV(){
+                try {
+                  if (!window.TradingView) return;
+                  // Hide canvas fallback once TV is up
+                  var c = document.getElementById('chart-today'); if (c) c.style.display = 'none';
+                  new window.TradingView.widget({
+                    container_id: 'chart-tv', autosize: true,
+                    symbol: 'CME_MINI:NQ1!', interval: '1', range: '1D',
+                    timezone: 'America/New_York', theme: 'dark', style: '1',
+                    locale: (localStorage.getItem('site.lang')||'fr')==='fr' ? 'fr' : 'en',
+                    hide_top_toolbar: false, hide_side_toolbar: true,
+                    allow_symbol_change: false, withdateranges: false,
+                    backgroundColor: 'rgba(11,15,20,1)'
+                  });
+                } catch(e) { /* fallback remains visible */ }
+              }
+              if (!window.TradingView) {
+                var s = document.createElement('script'); s.src = 'https://s3.tradingview.com/tv.js'; s.onload = bootTV; document.head.appendChild(s);
+              } else { bootTV(); }
             }
           }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement'; }
         }
