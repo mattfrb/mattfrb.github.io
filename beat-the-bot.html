@@ -234,6 +234,8 @@
         const now = Date.now();
         if (!candles.length || now - lastCandleTime >= TF) {
           const o = candles.length ? candles[candles.length - 1].c : state.price;
+          // Keep at most 80 candles visible: drop oldest before adding the new one
+          if (candles.length >= 80) { candles.shift(); }
           candles.push({ t: now, o, h: state.price, l: state.price, c: state.price });
           lastCandleTime = now;
         } else {
