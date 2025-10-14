@@ -98,6 +98,17 @@
       </div>
     </nav>
     <script>
+      // When embedded (inside iframe), hide local footer to avoid double bars
+      (function(){
+        try {
+          var embedded = (window.self !== window.top);
+          if (embedded) {
+            var f = document.querySelector('.footer'); if (f) f.remove();
+            var m = document.querySelector('main'); if (m) m.style.paddingBottom = '12px';
+          }
+        } catch(e) { /* noop */ }
+      })();
+
       // Fade transitions like other pages
       function setupTransitions(){
         requestAnimationFrame(()=>{document.body.style.opacity='1'});
