@@ -20,8 +20,10 @@
       .panel { position: fixed; right: var(--edge); top: var(--edge); bottom: 56px; z-index: 26; width: var(--panel-width); display: flex; flex-direction: column; gap: 10px; overflow: auto; background: rgba(14,18,24,0.82); border: 1px solid rgba(255,255,255,0.12); padding: 10px 12px; border-radius: 12px; font-size: 14px; }
       .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .row.stack { display: grid; grid-template-columns: 1fr; gap: 4px; align-items: start; }
+      .metric { margin-bottom: 10px; }
       .metric .label { opacity: .9; font-weight: 600; }
       .metric .value { font-weight: 700; font-size: 18px; }
+      .stats { margin-bottom: 10px; }
       .stats .label { font-weight: 600; }
       .stats .value { font-weight: 700; }
       .divider { height: 1px; background: rgba(255,255,255,0.18); margin: 8px 0; }
@@ -30,9 +32,9 @@
       .btn.big { padding: 14px 22px; font-size: 18px; font-weight: 700; border-radius: 14px; min-width: 130px; }
       .posline { text-align: center; opacity: .9; margin: 6px 0 10px; }
       .inputs.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
-      .field { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 10px; }
+      .field { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 10px; }
       .field label { opacity: .9; }
-      .field input[type="number"] { width: 100%; padding: 6px 8px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+      .field input[type="number"] { width: 100%; padding: 3px 6px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
       .inputs.single { display: grid; grid-template-columns: 1fr; gap: 10px; }
       .levels-row { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; }
       .levels { display:inline-block; opacity:.85; font-size:12px; }
