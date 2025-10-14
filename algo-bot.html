@@ -31,7 +31,7 @@
       .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
       .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
       .btn-back:hover { background: rgba(255,255,255,0.12); }
-      :root{ --topbar-h: 56px; --footer-h: 56px; --banner-h: 36px; }
+      :root{ --topbar-h: 0px; --footer-h: 56px; --banner-h: 36px; }
       .topbar{ position: sticky; top: 0; z-index: 30; display:flex; align-items:center; justify-content: space-between; gap:12px; padding: 10px 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
       
       
@@ -61,9 +61,7 @@
   <body>
     <div id="bg"></div>    <a class="btn-back" href="projets.html" id="back-link">&#8592; Retour aux projets</a>
 
-            <main class="overlay" style="height:auto; display:block; text-align:left; padding:0;">
-      <div class="topbar"></div>
-      <div id="dash-area" style="height: calc(100vh - var(--topbar-h) - var(--footer-h) - var(--banner-h)); overflow:auto; -webkit-overflow-scrolling: touch;">
+            <main class="overlay" style="height:auto; display:block; text-align:left; padding:0;"><div id="dash-area" style="height: calc(100vh - var(--footer-h) - var(--banner-h)); overflow:auto; -webkit-overflow-scrolling: touch;">
         <div class="instrument-banner">E‑mini Nasdaq 100 (NQ futures)</div>
         <div class="orb-wrap">
           <div class="orb-grid">
