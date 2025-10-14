@@ -411,6 +411,8 @@
         if (window.__globalLangWired) return; window.__globalLangWired = true;
         function setActive(cur){ var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(!fr||!en) return; fr.classList.toggle('active',cur==='fr'); en.classList.toggle('active',cur==='en'); fr.setAttribute('aria-pressed',String(cur==='fr')); en.setAttribute('aria-pressed',String(cur==='en')); }
         function setLang(lang){ var val=(lang==='en')?'en':'fr'; localStorage.setItem('site.lang',val); if(typeof applyLanguage==='function'){ applyLanguage(val); } else { location.reload(); } setActive(val); }
+        // Bind immediately (script is at end of body), and also on DOMContentLoaded as a fallback
+        (function immediateBind(){ var cur=localStorage.getItem('site.lang')||'fr'; setActive(cur); var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(fr) fr.onclick=function(){ setLang('fr'); }; if(en) en.onclick=function(){ setLang('en'); }; })();
         window.addEventListener('DOMContentLoaded', function(){ var cur=localStorage.getItem('site.lang')||'fr'; setActive(cur); var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(fr) fr.addEventListener('click', function(){ setLang('fr'); }); if(en) en.addEventListener('click', function(){ setLang('en'); }); });
       })();
     </script>
