@@ -298,6 +298,7 @@
       // Chart
       const canvas = document.getElementById('chart');
       const ctx = canvas.getContext('2d');
+      const AXIS_W = 56; // right price axis width (px)
       function resize() {
         const wrap = document.querySelector('.chart-wrap');
         const dpr = window.devicePixelRatio || 1;
@@ -309,17 +310,31 @@
       }
       function draw() {
         const w = canvas.clientWidth; const h = canvas.clientHeight; ctx.clearRect(0,0,w,h);
+        // plot area (reserve right axis)
+        const plotL = 0; const plotR = Math.max(0, w - AXIS_W); const plotW = Math.max(0, plotR - plotL);
         ctx.fillStyle = 'rgba(14,18,24,0.9)'; ctx.fillRect(0,0,w,h);
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; for (let i=1;i<6;i++){ const y=(h/6)*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+        // grid lines within plot area
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; for (let i=1;i<6;i++){ const gy=(h/6)*i; ctx.beginPath(); ctx.moveTo(plotL,gy); ctx.lineTo(plotR,gy); ctx.stroke(); }
         const visible = Math.min(candles.length, 100); const start = Math.max(0, candles.length - visible); const view = candles.slice(start); if (!view.length) return;
         let min = Infinity, max = -Infinity; for (const k of view){ if (k.l < min) min = k.l; if (k.h > max) max = k.h; } const pad = (max-min)*0.1 || 1; min -= pad; max += pad;
-        const gap = 2; const xw = Math.max(3, Math.floor(w / (view.length + 1)) - gap);
-        view.forEach((k,i)=>{ const x = i * (xw + gap) + gap; const y = v => h - (v - min) / (max - min) * h; const up = k.c >= k.o; const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)'; ctx.strokeStyle = color; ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + xw/2, y(k.h)); ctx.lineTo(x + xw/2, y(k.l)); ctx.stroke(); const y1=y(k.o), y2=y(k.c); const top=Math.min(y1,y2), bh=Math.max(2, Math.abs(y1-y2)); ctx.fillRect(x, top, xw, bh); });
-        const lp = state.price; const y = v => h - (v - min) / (max - min) * h; const ly = y(lp); ctx.strokeStyle = 'rgba(77,163,255,0.4)'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(w, ly); ctx.stroke(); ctx.setLineDash([]);
+        const y = v => h - (v - min) / (max - min) * h;
+        const gap = 2; const xw = Math.max(3, Math.floor(plotW / (view.length + 1)) - gap);
+        view.forEach((k,i)=>{ const x = plotL + i * (xw + gap) + gap; const up = k.c >= k.o; const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)'; ctx.strokeStyle = color; ctx.fillStyle = color; // wick
+          ctx.beginPath(); ctx.moveTo(x + xw/2, y(k.h)); ctx.lineTo(x + xw/2, y(k.l)); ctx.stroke(); // body
+          const y1=y(k.o), y2=y(k.c); const top=Math.min(y1,y2), bh=Math.max(2, Math.abs(y1-y2)); ctx.fillRect(x, top, xw, bh); });
+        // last price line within plot area
+        const lp = state.price; const ly = y(lp); ctx.strokeStyle = 'rgba(77,163,255,0.4)'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(plotL, ly); ctx.lineTo(plotR, ly); ctx.stroke(); ctx.setLineDash([]);
+        // stop/tp lines
         if (state.position !== 0) {
-          if (state.stopPx) { ctx.strokeStyle = 'rgba(240,80,80,0.6)'; ctx.setLineDash([4,6]); const sy = y(state.stopPx); ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(w, sy); ctx.stroke(); ctx.setLineDash([]); }
-          if (state.tpPx) { ctx.strokeStyle = 'rgba(0,200,120,0.6)'; ctx.setLineDash([4,6]); const ty = y(state.tpPx); ctx.beginPath(); ctx.moveTo(0, ty); ctx.lineTo(w, ty); ctx.stroke(); ctx.setLineDash([]); }
+          if (state.stopPx) { ctx.strokeStyle = 'rgba(240,80,80,0.6)'; ctx.setLineDash([4,6]); const sy = y(state.stopPx); ctx.beginPath(); ctx.moveTo(plotL, sy); ctx.lineTo(plotR, sy); ctx.stroke(); ctx.setLineDash([]); }
+          if (state.tpPx) { ctx.strokeStyle = 'rgba(0,200,120,0.6)'; ctx.setLineDash([4,6]); const ty = y(state.tpPx); ctx.beginPath(); ctx.moveTo(plotL, ty); ctx.lineTo(plotR, ty); ctx.stroke(); ctx.setLineDash([]); }
         }
+        // Right price axis
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plotR+0.5, 0); ctx.lineTo(plotR+0.5, h); ctx.stroke();
+        ctx.fillStyle = 'rgba(220,230,255,0.9)'; ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        const ticks = 6; for (let i=0;i<=ticks;i++){ const val = min + (max - min) * (i / ticks); const tyc = y(val); ctx.beginPath(); ctx.moveTo(plotR, tyc); ctx.lineTo(plotR+6, tyc); ctx.stroke(); ctx.fillText(val.toFixed(2), plotR + 8, tyc); }
+        // Last price label
+        ctx.fillStyle = 'rgba(77,163,255,0.9)'; ctx.fillText(lp.toFixed(2), plotR + 8, ly);
       }
 
       document.getElementById('buy').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
@@ -331,7 +346,7 @@
       window.addEventListener('resize', resize);
       window.addEventListener('DOMContentLoaded', function() {
         setupTransitions(); setActiveButtons(); applyLanguage(currentLang); updateStats(); resize();
-        seedCandles(30); // start with 30 historical candles
+        seedCandles(50); // start with 50 historical candles
         setInterval(tick, 400);
       });
     </script>
