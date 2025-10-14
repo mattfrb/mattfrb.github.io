@@ -10,7 +10,7 @@
       body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:var(--bg);color:var(--fg);overflow:hidden;opacity:0;transition:opacity .25s ease}
       header{padding:20px 16px;border-bottom:1px solid #1d2a55}
       h1{margin:0;font-size:20px}
-      main{width:100%;max-width:none;margin:0;padding:12px 16px 64px;display:grid;gap:16px}
+      main{width:100%;max-width:none;margin:0;padding:12px 16px;display:grid;gap:16px}
       .card{background:var(--card);border:1px solid #1d2a55;border-radius:10px;padding:16px}
       .row{display:flex;flex-wrap:wrap;gap:12px}
       .metric{flex:1 1 160px;background:#0e1730;border:1px solid #1c2a55;border-radius:8px;padding:12px}
@@ -25,15 +25,7 @@
       a{color:var(--accent)}
 
       /* Footer (match site presentation) */
-      .footer{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:rgba(10,14,18,0.72);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:14px}
-      .footer .links{display:flex;gap:16px;align-items:center}
-      .footer a{color:#fff;text-decoration:none;opacity:.9}
-      .footer a:hover{opacity:1;text-decoration:underline}
-      .footer .lang{display:flex;align-items:center;gap:8px}
-      .footer .lang label{opacity:.8}
-      .footer .lang button{appearance:none;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
-      .footer .lang button:hover{background:rgba(255,255,255,.12)}
-      .footer .lang button.active{background:rgba(66,133,244,.35);border-color:rgba(66,133,244,.6)}
+      /* footer removed for maximum viewport usage */
     </style>
   </head>
   <body>
@@ -86,29 +78,7 @@
         </table>
       </section>
     </main>
-    <nav class="footer" aria-label="Navigation bas de page">
-      <div class="links">
-        <a href="index.html" id="nav-home">Accueil</a>
-        <a href="projets.html" id="nav-projects">Projets</a>
-      </div>
-      <div class="lang" role="group" aria-label="Choix de langue">
-        <label>Langue:</label>
-        <button type="button" data-lang="fr" aria-pressed="false" id="btn-fr">FR</button>
-        <button type="button" data-lang="en" aria-pressed="false" id="btn-en">EN</button>
-      </div>
-    </nav>
     <script>
-      // When embedded (inside iframe), hide local footer to avoid double bars
-      (function(){
-        try {
-          var embedded = (window.self !== window.top);
-          if (embedded) {
-            var f = document.querySelector('.footer'); if (f) f.remove();
-            var m = document.querySelector('main'); if (m) m.style.paddingBottom = '12px';
-          }
-        } catch(e) { /* noop */ }
-      })();
-
       // Fade transitions like other pages
       function setupTransitions(){
         requestAnimationFrame(()=>{document.body.style.opacity='1'});
@@ -117,29 +87,6 @@
           if(!href||href.startsWith('http')||href.startsWith('#')||a.target==='_blank') return;
           a.addEventListener('click',e=>{e.preventDefault();document.body.style.opacity='0';setTimeout(()=>{window.location.href=a.href},200)});
         });
-      }
-      const storageKey='site.lang';
-      let currentLang=(localStorage.getItem(storageKey)||'fr');
-      function setActiveButtons(){
-        const fr=document.getElementById('btn-fr');const en=document.getElementById('btn-en');
-        if(!fr||!en) return;
-        fr.classList.toggle('active',currentLang==='fr');
-        en.classList.toggle('active',currentLang==='en');
-        fr.setAttribute('aria-pressed',String(currentLang==='fr'));
-        en.setAttribute('aria-pressed',String(currentLang==='en'));
-      }
-      function applyLanguage(lang){
-        currentLang=(lang==='en')?'en':'fr';
-        localStorage.setItem(storageKey,currentLang);
-        setActiveButtons();
-        const navHome=document.getElementById('nav-home');
-        const navProjects=document.getElementById('nav-projects');
-        const langLabel=document.querySelector('.lang label');
-        if(currentLang==='fr'){
-          navHome.textContent='Accueil'; navProjects.textContent='Projets'; langLabel.textContent='Langue:';
-        } else {
-          navHome.textContent='Home'; navProjects.textContent='Projects'; langLabel.textContent='Language:';
-        }
       }
       async function loadJSON(path){
         const resp = await fetch(path + `?t=${Date.now()}`);
@@ -199,10 +146,6 @@
         }
       }
       setupTransitions();
-      setActiveButtons();
-      applyLanguage(currentLang);
-      document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
-      document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
       refresh();
       setInterval(refresh, 60000);
     </script>
