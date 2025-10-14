@@ -12,7 +12,7 @@
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: hidden; opacity: 0; transition: opacity .25s ease; }
       #bg { position: fixed; inset: 0; z-index: 0; background: #0a0e12; }
 
-      .overlay { position: relative; z-index: 10; height: 100dvh; display: grid; place-items: center; text-align: center; padding: 24px; }
+      .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 16px 16px 80px 16px; }
 
       /* Credits */
       .credit { position: fixed; right: 8px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.65; }
@@ -31,7 +31,7 @@
       .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
 
       /* Game UI */
-      .game { width: min(1100px, 94vw); }
+      .game { width: calc(100vw - 360px); max-width: none; }
       .chart-wrap { background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
       #chart { display: block; width: 100%; height: 480px; border-radius: 8px; }
 
@@ -53,8 +53,8 @@
 
       /* Left panel matching requested order */
       .panel {
-        position: fixed; left: 8px; top: 48px; z-index: 26;
-        display: grid; gap: 10px; align-content: start;
+        position: fixed; right: 8px; top: 8px; bottom: 56px; z-index: 26;
+        display: grid; gap: 10px; align-content: start; overflow: auto;
         background: rgba(14,18,24,0.82);
         border: 1px solid rgba(255,255,255,0.12);
         padding: 10px 12px; border-radius: 12px;
@@ -66,6 +66,12 @@
       .panel .value { font-weight: 600; }
       .panel .actions { display: flex; gap: 8px; }
       .panel .inputs { display: grid; grid-template-columns: auto 90px; gap: 6px 10px; align-items: center; }
+      .panel .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
+
+      @media (max-width: 760px) {
+        .game { width: 100vw; }
+        .panel { right: 8px; left: 8px; width: auto; }
+      }
     </style>
   </head>
   <body>
@@ -87,6 +93,7 @@
           <div class="row"><span class="label" id="lbl-equity-2">Équité</span><span class="value" id="equity">—</span></div>
           <div class="row"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">—</span></div>
           <div class="row" id="stats-row"><span class="label" id="lbl-stats">Stats</span><span class="value" id="stats">Winrate: — | Longs: 0 | Shorts: 0</span></div>
+          <div class="divider"></div>
           <div class="row actions">
             <button id="buy" class="btn buy">Acheter</button>
             <button id="sell" class="btn sell">Vendre</button>
