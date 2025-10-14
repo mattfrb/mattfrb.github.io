@@ -95,19 +95,27 @@
               </div>
               <div class="label" style="margin-top:8px">Un seul trade par séance; sortie sur TP, trailing stop ou fin de fenêtre.</div>
             </section>
-            <section class="card">
-              <h3 style="margin:0 0 8px">Derniers 10 trades</h3>
-              <div class="label" style="margin-bottom:6px">Source: opening_range_reports/summary_last_10_days.csv</div>
-              <table id="tbl">
-                <thead>
-                  <tr><th>Date</th><th>Dir</th><th>Entrée</th><th>Sortie</th><th>Pts</th><th>$</th></tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </section>
-          </div>
+          <section class="card">
+            <h3 style="margin:0 0 8px">Derniers 10 trades</h3>
+            <div class="label" style="margin-bottom:6px">Source: opening_range_reports/summary_last_10_days.csv</div>
+            <table id="tbl">
+              <thead>
+                <tr><th>Date</th><th>Dir</th><th>Entrée</th><th>Sortie</th><th>Pts</th><th>$</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </section>
+          <section class="card">
+            <h3 style="margin:0 0 8px">Graphiques des trades</h3>
+            <div class="charts">
+              <div class="chartbox"><canvas id="chart-bars"></canvas></div>
+              <div class="chartbox"><canvas id="chart-cum"></canvas></div>
+              <div class="chartbox"><canvas id="chart-time"></canvas></div>
+            </div>
+          </section>
         </div>
       </div>
+    </div>
     </main>
 
     <div class="credit">Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
@@ -189,6 +197,78 @@
     <script>
       // ORB live data loader on this page
       (function(){
+        function drawBars(canvas, data){
+          const ctx = canvas.getContext('2d');
+          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          const n = data.length; if(!n) return;
+          const dates = data.map(d=>d.date);
+          const vals = data.map(d=>+d.pnl_usd);
+          const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
+          const pad = 28; const x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
+          const barW = Math.max(8, Math.floor(W/(n*1.5)));
+          const xStep = W/n;
+          const yScale = v => y0 + H - ((v-min)/((max-min)||1))*H;
+          const yZero = yScale(0);
+          ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0,yZero); ctx.lineTo(x0+W,yZero); ctx.stroke();
+          for (let i=0;i<n;i++){
+            const x = x0 + i*xStep + (xStep-barW)/2; const y = yScale(vals[i]);
+            ctx.fillStyle = vals[i]>=0 ? '#4caf50' : '#f44336';
+            ctx.fillRect(x, Math.min(y,yZero), barW, Math.abs(y - yZero));
+          }
+          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='12px system-ui';
+          for(let i=0;i<n;i+=Math.ceil(n/4)){ const x=x0+i*xStep; ctx.fillText(dates[i], x, h-6); }
+        }
+
+        function drawLine(canvas, data){
+          const ctx = canvas.getContext('2d');
+          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          const n = data.length; if(!n) return;
+          const acc = []; let s=0; for (const d of data){ s += +d.pnl_usd; acc.push(s); }
+          const min = Math.min(...acc), max = Math.max(...acc);
+          const pad = 28; const x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
+          const yScale = v => y0 + H - ((v-min)/((max-min)||1))*H;
+          const xScale = i => x0 + ((n<=1?0:i/(n-1))*W);
+          ctx.strokeStyle='#4aa3ff'; ctx.lineWidth=2; ctx.beginPath();
+          for (let i=0;i<n;i++){ const x=xScale(i), y=yScale(acc[i]); if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); }
+          ctx.stroke();
+          const yZero=yScale(0); ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0,yZero); ctx.lineTo(x0+W,yZero); ctx.stroke();
+        }
+
+        function drawTime(canvas, data){
+          const ctx = canvas.getContext('2d');
+          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          const n = data.length; if(!n) return;
+          // Map entry/exit to minutes from 9:30 ET using the offset present in ISO string
+          function minutesFromOpen(iso){
+            if(!iso) return null; // handle missing
+            const m = iso.match(/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}([+-]\d{2}:?\d{2})/);
+            const date = iso.slice(0,10);
+            const off = (m && m[2]) ? m[2] : '-04:00';
+            const base = new Date(date+'T09:30:00'+off);
+            const t = new Date(iso);
+            return Math.max(0, Math.min(390, Math.round((t - base)/60000)));
+          }
+          const entries = data.map(d=>({ t: minutesFromOpen(d.entry_time), dir: d.direction }));
+          const exits = data.map(d=>({ t: minutesFromOpen(d.exit_time), win: (+d.pnl_usd)>0 }));
+          const pad = 28; const x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
+          const xScale = v => x0 + (v/390)*W;
+          // Axes
+          ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.moveTo(x0,y0+H); ctx.lineTo(x0+W,y0+H); ctx.stroke();
+          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='12px system-ui';
+          [0,60,120,180,240,300,360].forEach(min=>{ const x=xScale(min); ctx.fillText((9+Math.floor((30+min)/60))+':'+String((30+min)%60).padStart(2,'0'), x-12, h-6); });
+          // Entries (circles): green=long, red=short
+          for(const e of entries){ if(e.t==null) continue; const x=xScale(e.t), y=y0+H*0.35; ctx.fillStyle = e.dir==='long'?'#4caf50':'#f44336'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); }
+          // Exits (squares): blue for win, gray for loss
+          for(const ex of exits){ if(ex.t==null) continue; const x=xScale(ex.t), y=y0+H*0.65; ctx.fillStyle = ex.win?'#4aa3ff':'#9fb0d9'; ctx.fillRect(x-5,y-5,10,10); }
+          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fillText('Entrées', x0, y0+H*0.35-10);
+          ctx.fillText('Sorties', x0, y0+H*0.65-10);
+        }
         async function loadJSON(path){ const r = await fetch(path + '?t=' + Date.now()); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }
         function fmt(n){ return (typeof n === 'number') ? n.toFixed(2) : n; }
         function pct(n){ return (n*100).toFixed(1) + '%'; }
@@ -228,6 +308,11 @@
               tr.innerHTML = '<td>'+ (r.date||'') +'</td><td>'+ (r.direction||'') +'</td><td>'+ (fmt(r.entry_price)||'') +'</td><td>'+ (fmt(r.exit_price)||'') +'</td><td>'+ (fmt(r.pnl_points)||'') +'</td><td>$'+ (fmt(r.pnl_usd)||'') +'</td>';
               tbody.appendChild(tr);
             }); }
+            // Charts
+            const last10 = (summary && summary.last_10) ? summary.last_10 : [];
+            const bars = document.getElementById('chart-bars'); if (bars) drawBars(bars, last10);
+            const cum = document.getElementById('chart-cum'); if (cum) drawLine(cum, last10);
+            const time = document.getElementById('chart-time'); if (time) drawTime(time, last10);
           }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement'; }
         }
         window.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
