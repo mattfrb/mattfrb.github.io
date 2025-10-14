@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Beat the Market — Matthieu Farbos</title>
-    <meta name="description" content="Beat the Market — mini‑jeu de trading simulé (stop & take profit)." />
+    <title>Beat the Market â€” Matthieu Farbos</title>
+    <meta name="description" content="Beat the Market â€” miniâ€‘jeu de trading simulÃ© (stop & take profit)." />
     <link rel="prefetch" href="index.html" />
     <link rel="prefetch" href="projets.html" />
     <style>
@@ -31,7 +31,7 @@
       .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
 
       /* Game UI */
-      .game { width: calc(100vw - 360px); max-width: none; }
+      .game { width: calc(100vw - 320px); max-width: none; }
       .chart-wrap { background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
       #chart { display: block; width: 100%; height: 480px; border-radius: 8px; }
 
@@ -54,17 +54,17 @@
       /* Left panel matching requested order */
       .panel {
         position: fixed; right: 8px; top: 8px; bottom: 56px; z-index: 26;
-        display: grid; gap: 10px; align-content: start; overflow: auto;
+        display: flex; flex-direction: column; gap: 10px; overflow: auto;
         background: rgba(14,18,24,0.82);
         border: 1px solid rgba(255,255,255,0.12);
         padding: 10px 12px; border-radius: 12px;
-        width: min(320px, 92vw);
+        width: min(280px, 92vw);
         font-size: 14px;
       }
       .panel .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .panel .label { opacity: .8; min-width: 110px; }
       .panel .value { font-weight: 600; }
-      .panel .actions { display: flex; gap: 8px; }
+      .panel .actions { display: flex; gap: 8px; margin-top: auto; }
       .panel .inputs { display: grid; grid-template-columns: auto 90px; gap: 6px 10px; align-items: center; }
       .panel .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
 
@@ -80,41 +80,42 @@
     <main class="overlay">
       <div class="game" id="game">
         <div class="hud hud-top-right" id="hud-top">
-          <div><span id="lbl-equity">Équité</span>: <strong id="equity">—</strong></div>
-          <div><span id="lbl-unreal">PNL latent</span>: <strong id="unrealized">—</strong></div>
+          <div><span id="lbl-equity">Ã‰quitÃ©</span>: <strong id="equity">â€”</strong></div>
+          <div><span id="lbl-unreal">PNL latent</span>: <strong id="unrealized">â€”</strong></div>
         </div>
 
         <div class="chart-wrap">
           <canvas id="chart"></canvas>
         </div>
 
-        <div class="panel" id="panel">
-          <a class="btn-back" href="projets.html" id="back-link">← Retour aux projets</a>
-          <div class="row"><span class="label" id="lbl-equity-2">Équité</span><span class="value" id="equity">—</span></div>
-          <div class="row"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">—</span></div>
-          <div class="row" id="stats-row"><span class="label" id="lbl-stats">Stats</span><span class="value" id="stats">Winrate: — | Longs: 0 | Shorts: 0</span></div>
-          <div class="divider"></div>
-          <div class="row actions">
-            <button id="buy" class="btn buy">Acheter</button>
-            <button id="sell" class="btn sell">Vendre</button>
-            <span class="pos" id="pos">Flat —</span>
-          </div>
+        
           <div class="inputs">
             <label for="tpPct" id="lbl-tp">TP (%)</label>
             <input type="number" id="tpPct" min="0" step="0.1" value="4" />
             <label for="stopPct" id="lbl-stop">Stop (%)</label>
             <input type="number" id="stopPct" min="0" step="0.1" value="2" />
-            <label for="qty" id="lbl-qty">Quantité</label>
+            <label for="qty" id="lbl-qty">QuantitÃ©</label>
             <input type="number" id="qty" min="1" value="1" />
             <label>Niveaux</label>
-            <span class="levels" id="levels">SL: — | TP: —</span>
+            <span class="levels" id="levels">SL: â€” | TP: â€”</span>
+          </div>
+          <div class="panel" id="panel">
+          <a class="btn-back" href="projets.html" id="back-link">â† Retour aux projets</a>
+          <div class="row"><span class="label" id="lbl-equity-2">Ã‰quitÃ©</span><span class="value" id="equity">â€”</span></div>
+          <div class="row"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">â€”</span></div>
+          <div class="row" id="stats-row"><span class="label" id="lbl-stats">Stats</span><span class="value" id="stats">Winrate: â€” | Longs: 0 | Shorts: 0</span></div>
+          <div class="divider"></div>
+          <div class="row actions">
+            <button id="buy" class="btn buy">Acheter</button>
+            <button id="sell" class="btn sell">Vendre</button>
+            <span class="pos" id="pos">Flat â€”</span>
           </div>
         </div>
       </div>
     </main>
 
-    <div class="credit">Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
-    <div class="credit-name">© Matthieu Farbos</div>
+    <div class="credit">DonnÃ©es et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
+    <div class="credit-name">Â© Matthieu Farbos</div>
 
     <nav class="footer" aria-label="Navigation bas de page">
       <div class="links">
@@ -180,21 +181,21 @@
           navHome.textContent = 'Accueil';
           navProjects.textContent = 'Projets';
           langLabel.textContent = 'Langue:';
-          back.textContent = '← Retour aux projets';
-          lQty.textContent = 'Quantité';
+          back.textContent = 'â† Retour aux projets';
+          lQty.textContent = 'QuantitÃ©';
           lStop.textContent = 'Stop (%)';
           lTp.textContent = 'TP (%)';
           btnBuy.textContent = 'Acheter';
           btnSell.textContent = 'Vendre';
-          lEquity.textContent = 'Équité';
+          lEquity.textContent = 'Ã‰quitÃ©';
           lUnreal.textContent = 'PNL latent';
-          lReal.textContent = 'PNL réalisé';
-          lCash.textContent = 'Trésorerie';
+          lReal.textContent = 'PNL rÃ©alisÃ©';
+          lCash.textContent = 'TrÃ©sorerie';
         } else {
           navHome.textContent = 'Home';
           navProjects.textContent = 'Projects';
           langLabel.textContent = 'Language:';
-          back.textContent = '← Back to projects';
+          back.textContent = 'â† Back to projects';
           lQty.textContent = 'Quantity';
           lStop.textContent = 'Stop (%)';
           lTp.textContent = 'Take Profit (%)';
@@ -249,8 +250,8 @@
 
       function updateLevels() {
         const el = document.getElementById('levels');
-        const sl = state.stopPx ? state.stopPx.toFixed(2) : '—';
-        const tp = state.tpPx ? state.tpPx.toFixed(2) : '—';
+        const sl = state.stopPx ? state.stopPx.toFixed(2) : 'â€”';
+        const tp = state.tpPx ? state.tpPx.toFixed(2) : 'â€”';
         el.textContent = `SL: ${sl} | TP: ${tp}`;
       }
 
@@ -325,7 +326,7 @@
         const posEl = document.getElementById('pos');
         const qty = Math.abs(state.position);
         const dir = state.position > 0 ? 'Long' : state.position < 0 ? 'Short' : 'Flat';
-        posEl.textContent = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : '—'}`;
+        posEl.textContent = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : 'â€”'}`;
       }
 
       function updateStats() {
@@ -474,3 +475,4 @@
     </script>
   </body>
   </html>
+
