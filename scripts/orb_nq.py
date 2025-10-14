@@ -27,6 +27,7 @@ REPORTS_DIR = os.path.join("opening_range_reports")
 SUMMARY_CSV = os.path.join(REPORTS_DIR, "summary_last_10_days.csv")
 LATEST_JSON = os.path.join(REPORTS_DIR, "latest.json")
 SUMMARY_JSON = os.path.join(REPORTS_DIR, "summary.json")
+INTRADAY_JSON = os.path.join(REPORTS_DIR, "intraday_today.json")
 
 ET = pytz.timezone("America/New_York")
 
@@ -420,6 +421,32 @@ def main():
 
     write_latest(latest)
     save_state(st, now)
+
+    # Write intraday candles for today's session (for frontend chart)
+    try:
+        mask = (today_df.index >= times["open"]) & (today_df.index <= min(now, times["trade_end"]))
+        view = today_df.loc[mask]
+        candles = []
+        for ts, r in view.iterrows():
+            candles.append({
+                "t": ts.isoformat(),
+                "o": round(float(r["Open"]), 2),
+                "h": round(float(r["High"]), 2),
+                "l": round(float(r["Low"]), 2),
+                "c": round(float(r["Close"]), 2),
+            })
+        payload = {
+            "symbol": SYMBOL,
+            "date": now.strftime('%Y-%m-%d'),
+            "session_open": times["open"].isoformat(),
+            "session_close": times["trade_end"].isoformat(),
+            "candles": candles,
+        }
+        with open(INTRADAY_JSON, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+    except Exception:
+        # best-effort; ignore chart export errors
+        pass
 
 
 if __name__ == "__main__":
