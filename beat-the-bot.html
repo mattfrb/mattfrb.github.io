@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Beat the Market — Matthieu Farbos</title>
-    <meta name="description" content="Beat the Market — mini-jeu de trading simule (stop & take profit)." />
+    <title>Beat the Market â€” Matthieu Farbos</title>
+    <meta name="description" content="Beat the Market â€” mini-jeu de trading simule (stop & take profit)." />
     <link rel="prefetch" href="index.html" />
     <link rel="prefetch" href="projets.html" />
     <style>
@@ -20,12 +20,21 @@
       .panel { position: fixed; right: var(--edge); top: var(--edge); bottom: 56px; z-index: 26; width: var(--panel-width); display: flex; flex-direction: column; gap: 10px; overflow: auto; background: rgba(14,18,24,0.82); border: 1px solid rgba(255,255,255,0.12); padding: 10px 12px; border-radius: 12px; font-size: 14px; }
       .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .row.stack { display: grid; grid-template-columns: 1fr; gap: 4px; align-items: start; }
-      .label { opacity: .8; }
-      .value { font-weight: 600; }
-      .divider { height: 1px; background: rgba(255,255,255,0.12); margin: 6px 0; }
-      .actions { display: flex; gap: 8px; margin-top: auto; align-items: center; }
-      .inputs { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
-      .inputs input[type="number"] { width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+      .metric .label { opacity: .9; font-weight: 600; }
+      .metric .value { font-weight: 700; font-size: 18px; }
+      .stats .label { font-weight: 600; }
+      .stats .value { font-weight: 700; }
+      .divider { height: 1px; background: rgba(255,255,255,0.18); margin: 8px 0; }
+      .actions { display: flex; gap: 14px; align-items: center; justify-content: space-between; }
+      .actions.cta { margin: 6px 0; }
+      .btn.big { padding: 14px 22px; font-size: 18px; font-weight: 700; border-radius: 14px; min-width: 130px; }
+      .posline { text-align: center; opacity: .9; margin: 6px 0 10px; }
+      .inputs.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
+      .field { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 10px; }
+      .field label { opacity: .9; }
+      .field input[type="number"] { width: 100%; padding: 6px 8px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+      .inputs.single { display: grid; grid-template-columns: 1fr; gap: 10px; }
+      .levels-row { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; }
       .levels { display:inline-block; opacity:.85; font-size:12px; }
 
       .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; }
@@ -65,32 +74,39 @@
 
       <div class="panel" id="panel">
         <a class="btn-back" href="projets.html" id="back-link">&larr; Retour aux projets</a>
-        <div class="row stack"><span class="label" id="lbl-equity-2">Equite</span><span class="value" id="equity">-</span></div>
-        <div class="row stack"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">-</span></div>
-        <div class="row stack" id="stats-row">
+        <div class="metric row stack"><span class="label" id="lbl-equity-2">Equite</span><span class="value" id="equity">-</span></div>
+        <div class="metric row stack"><span class="label" id="lbl-unreal-2">PNL latent</span><span class="value" id="unrealized">-</span></div>
+        <div class="stats row stack" id="stats-row">
           <span class="label" id="lbl-stats">Stats</span>
-          <span class="value" id="stats">Winrate: -<br>Longs: 0 | Shorts: 0</span>
+          <div>
+            <div>Winrate: <span id="stat-win">0</span>%</div>
+            <div>Longs: <span id="stat-longs">0</span></div>
+            <div>Shorts: <span id="stat-shorts">0</span></div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="row actions">
-          <button id="buy" class="btn buy">Acheter</button>
-          <button id="sell" class="btn sell">Vendre</button>
-          <span class="pos" id="pos">Flat -</span>
+        <div class="actions cta">
+          <button id="buy" class="btn buy big">Acheter</button>
+          <button id="sell" class="btn sell big">Vendre</button>
         </div>
-        <div class="inputs">
-          <label for="tpPct" id="lbl-tp">TP (%)</label>
-          <input type="number" id="tpPct" min="0" step="0.1" value="4" />
-          <label for="stopPct" id="lbl-stop">Stop (%)</label>
-          <input type="number" id="stopPct" min="0" step="0.1" value="2" />
-          <label for="qty" id="lbl-qty">Quantite</label>
-          <input type="number" id="qty" min="1" value="1" />
-          <label>Niveaux</label>
-          <span class="levels" id="levels">SL: - | TP: -</span>
+        <div class="posline" id="posline">Flat @ -</div>
+        <div class="inputs two">
+          <div class="field"><label for="tpPct" id="lbl-tp">TP (%)</label><input type="number" id="tpPct" min="0" step="0.1" value="4" /></div>
+          <div class="field"><label for="stopPct" id="lbl-stop">Stop (%)</label><input type="number" id="stopPct" min="0" step="0.1" value="2" /></div>
+        </div>
+        <div class="inputs single">
+          <div class="field"><label for="qty" id="lbl-qty">Quantite</label><input type="number" id="qty" min="1" value="1" /></div>
+        </div>
+        <div class="levels-row"><label>Niveaux</label><span class="levels" id="levels">SL: - | TP: -</span></div>
+        <div class="actions">
+          <button class="btn buy" id="buy2">Acheter</button>
+          <button class="btn sell" id="sell2">Vendre</button>
+          <span class="pos" id="pos">Flat -</span>
         </div>
       </div>
     </main>
 
-    <div class="credit-name">© Matthieu Farbos</div>
+    <div class="credit-name">Â© Matthieu Farbos</div>
 
     <nav class="footer" aria-label="Navigation bas de page">
       <div class="links">
@@ -224,14 +240,17 @@
         const equity = state.cash + state.realized + unreal;
         const elUnr = document.getElementById('unrealized'); if (elUnr) elUnr.textContent = formatMoney(unreal);
         const elEq = document.getElementById('equity'); if (elEq) elEq.textContent = formatMoney(equity);
-        const posEl = document.getElementById('pos');
         const qty = Math.abs(state.position);
         const dir = state.position > 0 ? 'Long' : state.position < 0 ? 'Short' : 'Flat';
-        posEl.textContent = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : '-'}`;
+        const txt = `${dir} ${qty || ''} @ ${state.avg ? state.avg.toFixed(2) : state.price.toFixed(2)}`;
+        const posEl = document.getElementById('pos'); if (posEl) posEl.textContent = txt;
+        const posLine = document.getElementById('posline'); if (posLine) posLine.textContent = txt;
       }
       function updateStats() {
         const winrate = tradesTotal ? Math.round((tradesWins / tradesTotal) * 100) : 0;
-        const el = document.getElementById('stats'); if (el) el.innerHTML = `Winrate: ${winrate}%<br>Longs: ${tradesLong} | Shorts: ${tradesShort}`;
+        const w = document.getElementById('stat-win'); if (w) w.textContent = String(winrate);
+        const lg = document.getElementById('stat-longs'); if (lg) lg.textContent = String(tradesLong);
+        const sh = document.getElementById('stat-shorts'); if (sh) sh.textContent = String(tradesShort);
       }
       function recordTrade(side, pnl) {
         tradesTotal += 1; if (pnl > 0) tradesWins += 1; if (side === 'long') tradesLong += 1; else if (side === 'short') tradesShort += 1; tradeSide = null; updateStats();
@@ -278,6 +297,8 @@
 
       document.getElementById('buy').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
       document.getElementById('sell').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('sell', qty); });
+      document.getElementById('buy2').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('buy', qty); });
+      document.getElementById('sell2').addEventListener('click', () => { const qty = parseInt(document.getElementById('qty').value || '1', 10); placeOrder('sell', qty); });
       document.getElementById('stopPct').addEventListener('input', recalcStops);
       document.getElementById('tpPct').addEventListener('input', recalcStops);
 
@@ -289,3 +310,4 @@
     </script>
   </body>
   </html>
+
