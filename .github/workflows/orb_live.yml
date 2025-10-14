@@ -1,0 +1,52 @@
+name: ORB NQ Live
+
+on:
+  schedule:
+    # Every 2 minutes during 13:00-20:59 UTC, weekdays (covers 9:00-16:59 ET; script self-guards to 9:30-16:00)
+    - cron: '*/2 13-20 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orb-nq-live
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ORB engine
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python scripts/orb_nq.py
+
+      - name: Commit and push updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add opening_range_reports/*.json opening_range_reports/*.csv || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(orb): update live reports"
+            git push
+          else
+            echo "No changes to commit"
+          fi
