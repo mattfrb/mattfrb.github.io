@@ -168,7 +168,35 @@
       let tradesTotal = 0, tradesWins = 0, tradesLong = 0, tradesShort = 0;
       const candles = [];
       const TF = 5000; // 5s per candle
-      let lastCandleTime = 0;
+  let lastCandleTime = 0;
+
+      // Seed historical candles so the chart starts populated
+      function seedCandles(n) {
+        try { n = Math.max(1, Math.floor(n)); } catch { n = 30; }
+        const now = Date.now();
+        candles.length = 0;
+        let p = state.price;
+        let t = now - (n - 1) * TF;
+        let prevClose = p;
+        for (let i = 0; i < n; i++) {
+          const o = prevClose;
+          let h = o, l = o;
+          // Simulate intra-candle movement with a few sub-steps
+          for (let j = 0; j < 5; j++) {
+            p = nextPrice(p);
+            if (p > h) h = p;
+            if (p < l) l = p;
+          }
+          const c = p;
+          candles.push({ t, o, h, l, c });
+          prevClose = c;
+          t += TF;
+        }
+        state.price = prevClose;
+        lastCandleTime = now; // last seeded candle is "now"
+        draw();
+        updateHud();
+      }
 
       function getPercents() {
         const sp = parseFloat(document.getElementById('stopPct').value || '0');
@@ -301,7 +329,8 @@
       window.addEventListener('resize', resize);
       window.addEventListener('DOMContentLoaded', function() {
         setupTransitions(); setActiveButtons(); applyLanguage(currentLang); updateStats(); resize();
-        for (let i=0;i<30;i++){ tick(); } setInterval(tick, 400);
+        seedCandles(30); // start with 30 historical candles
+        setInterval(tick, 400);
       });
     </script>
   </body>
