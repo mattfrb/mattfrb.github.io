@@ -12,7 +12,7 @@
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: hidden; opacity: 0; transition: opacity .25s ease; }
       #bg { position: fixed; inset: 0; z-index: 0; background: #0a0e12; }
 
-      .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 16px 16px 80px 16px; }
+      .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 0; }
 
       /* Credits */
       .credit { position: fixed; right: 8px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.65; }
@@ -32,7 +32,7 @@
 
       /* Game UI */
       .game { width: calc(100vw - 320px); max-width: none; }
-      .chart-wrap { background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+      .chart-wrap { position: fixed; left: 8px; top: 8px; bottom: 56px; right: 296px; background: rgba(14,18,24,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
       #chart { display: block; width: 100%; height: 480px; border-radius: 8px; }
 
       .controls { margin-top: 14px; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -72,6 +72,7 @@
       @media (max-width: 760px) {
         .game { width: 100vw; }
         .panel { right: 8px; left: 8px; width: auto; }
+        .chart-wrap { right: 8px; }
       }
     </style>
   </head>
@@ -396,8 +397,8 @@
       function resize() {
         const wrap = document.querySelector('.chart-wrap');
         const dpr = window.devicePixelRatio || 1;
-        const w = Math.floor(wrap.clientWidth);
-        const h = Math.floor(Math.max(280, Math.min(560, window.innerHeight * 0.55)));
+        const w = Math.max(0, Math.floor(wrap.clientWidth));
+        const h = Math.max(0, Math.floor(wrap.clientHeight));
         canvas.style.width = w + 'px';
         canvas.style.height = h + 'px';
         canvas.width = Math.floor(w * dpr);
