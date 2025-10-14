@@ -35,18 +35,18 @@
 
             .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
       .btn-back:hover { background: rgba(255,255,255,0.12); }
-      :root{ --topbar-h: 56px; --footer-h: 56px; }
+      :root{ --topbar-h: 56px; }
       .topbar{ position: sticky; top: 0; z-index: 30; display:flex; align-items:center; justify-content: space-between; gap:12px; padding: 10px 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
       .tabs{ display:flex; gap:8px; }
       .tabs .tab-btn{ appearance:none; border:1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:14px; }
       .tabs .tab-btn.active{ background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
-      .panes{ height: calc(100vh - var(--topbar-h) - var(--footer-h)); }
+      .panes{ height: calc(100vh - var(--topbar-h)); }
       .pane{ height: 100%; }
       .pane iframe{ width:100%; height:100%; border:0; display:block; background:#0b1020; }
       .charts{ height:100%; display:flex; flex-direction:column; gap:12px; padding:12px; }
       .chartbox{ flex:1 1 0; min-height: 220px; background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px; }
       .chartbox canvas{ width:100%; height:100%; display:block; }
-      .credit, .credit-name{ display:none !important; }
+      .credit, .credit-name, .footer{ display:none !important; }
     </style>
   </head>
   <body>
