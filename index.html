@@ -247,6 +247,38 @@
       });
     </script>
 
+    <script>
+      // Global language toggle wiring so FR/EN works on all pages
+      (function() {
+        if (window.__globalLangWired) return; // avoid double wiring
+        window.__globalLangWired = true;
+        function setActiveButtonsLang(cur){
+          var fr = document.getElementById('btn-fr');
+          var en = document.getElementById('btn-en');
+          if (!fr || !en) return;
+          fr.classList.toggle('active', cur === 'fr');
+          en.classList.toggle('active', cur === 'en');
+          fr.setAttribute('aria-pressed', String(cur === 'fr'));
+          en.setAttribute('aria-pressed', String(cur === 'en'));
+        }
+        function setLang(lang){
+          var val = (lang === 'en') ? 'en' : 'fr';
+          localStorage.setItem('site.lang', val);
+          if (typeof applyLanguage === 'function') { applyLanguage(val); }
+          else { location.reload(); }
+          setActiveButtonsLang(val);
+        }
+        window.addEventListener('DOMContentLoaded', function(){
+          var fr = document.getElementById('btn-fr');
+          var en = document.getElementById('btn-en');
+          var cur = localStorage.getItem('site.lang') || 'fr';
+          setActiveButtonsLang(cur);
+          if (fr) fr.addEventListener('click', function(){ setLang('fr'); });
+          if (en) en.addEventListener('click', function(){ setLang('en'); });
+        });
+      })();
+    </script>
+
     <noscript>
       Veuillez activer JavaScript pour afficher le graphique TradingView.
     </noscript>
