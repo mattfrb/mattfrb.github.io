@@ -33,31 +33,43 @@
       .btn-back { margin-top: 16px; display: inline-block; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
       .btn-back:hover { background: rgba(255,255,255,0.12); }
 
-      /* ORB embed */
-      .orb-wrap{ position:relative; border:1px solid rgba(255,255,255,0.12); border-radius:12px; overflow:hidden; background:rgba(255,255,255,0.02); }
-      .orb-frame{ width:100%; height:92vh; border:0; display:block; background:#0b1020; }
-      @media (max-width: 900px){ .orb-frame{ height:78vh; } }
-      @media (max-width: 600px){ .orb-frame{ height:70vh; } }
-      .orb-full-btn{ position:absolute; right:10px; top:10px; z-index:5; font-size:13px; padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.35); color:#fff; cursor:pointer; }
-      .orb-full-btn:hover{ background:rgba(255,255,255,0.15); }
-      /* Fallback CSS fullscreen */
-      .orb-fixed{ position:fixed !important; inset:0 !important; z-index:9999 !important; border-radius:0 !important; border:none !important; }
+            .btn-back { margin-top: 16px; display: inline-block; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
+      .btn-back:hover { background: rgba(255,255,255,0.12); }
+      :root{ --topbar-h: 56px; }
+      .topbar{ position: sticky; top: 0; z-index: 30; display:flex; align-items:center; justify-content: space-between; gap:12px; padding: 10px 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      .tabs{ display:flex; gap:8px; }
+      .tabs .tab-btn{ appearance:none; border:1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:14px; }
+      .tabs .tab-btn.active{ background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
+      .panes{ height: calc(100vh - var(--topbar-h)); }
+      .pane{ height: 100%; }
+      .pane iframe{ width:100%; height:100%; border:0; display:block; background:#0b1020; }
+      .charts{ height:100%; display:flex; flex-direction:column; gap:12px; padding:12px; }
+      .chartbox{ flex:1 1 0; min-height: 220px; background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px; }
+      .chartbox canvas{ width:100%; height:100%; display:block; }
+      .footer, .credit, .credit-name{ display:none !important; }
     </style>
   </head>
   <body>
     <div id="bg"></div>
 
-    <main class="overlay">
-      <div>
-        <h1 id="title">Algo Bot</h1>
-        <p class="sub" id="subtitle">Suivi live ORB NQ</p>
-        <div style="height:16px"></div>
-        <div class="orb-wrap" id="orbWrap">
-          <button type="button" class="orb-full-btn" id="orbFullBtn">Plein �cran</button>
-          <iframe src="orb-nq.html" title="ORB NQ Dashboard" class="orb-frame" id="orbFrame"></iframe>
+        <main class="overlay" style="height:auto; display:block; text-align:left; padding:0;">
+      <div class="topbar">
+        <h1 id="title" style="margin:0; font-size:20px;">Algo Bot</h1>
+        <div class="tabs">
+          <button type="button" class="tab-btn active" data-tab="dash" id="tab-dash">Tableau de bord</button>
+          <button type="button" class="tab-btn" data-tab="trades" id="tab-trades">Trades</button>
         </div>
-        <div style="height:16px"></div>
-        <a class="btn-back" href="projets.html" id="back-link">← Retour aux projets</a>
+      </div>
+      <div class="panes">
+        <section class="pane" id="pane-dash">
+          <iframe src="orb-nq.html" title="ORB NQ Dashboard"></iframe>
+        </section>
+        <section class="pane" id="pane-trades" hidden>
+          <div class="charts">
+            <div class="chartbox"><canvas id="chart-bars"></canvas></div>
+            <div class="chartbox"><canvas id="chart-cum"></canvas></div>
+          </div>
+        </section>
       </div>
     </main>
 
@@ -118,10 +130,10 @@
         const back = document.getElementById('back-link');
         if (currentLang === 'fr') {
           navHome.textContent = 'Accueil'; navProjects.textContent = 'Projets'; langLabel.textContent = 'Langue:';
-          title.textContent = 'Algo Bot'; subtitle.textContent = 'Suivi live ORB NQ'; back.textContent = '← Retour aux projets';
+          title.textContent = 'Algo Bot'; subtitle.textContent = 'Suivi live ORB NQ'; var td=document.getElementById('tab-dash'); var tt=document.getElementById('tab-trades'); if(td){td.textContent='Tableau de bord';} if(tt){tt.textContent='Trades';} back.textContent = '? Retour aux projets';
         } else {
           navHome.textContent = 'Home'; navProjects.textContent = 'Projects'; langLabel.textContent = 'Language:';
-          title.textContent = 'Algo Bot'; subtitle.textContent = 'Live ORB NQ'; back.textContent = '← Back to projects';
+          title.textContent = 'Algo Bot'; subtitle.textContent = 'Live ORB NQ'; var td=document.getElementById('tab-dash'); var tt=document.getElementById('tab-trades'); if(td){td.textContent='Dashboard';} if(tt){tt.textContent='Trades';} back.textContent = '? Back to projects';
         }
         if (window.TradingView) initChart();
       }
@@ -146,5 +158,80 @@
         window.addEventListener('DOMContentLoaded', function(){ var cur=localStorage.getItem('site.lang')||'fr'; setActive(cur); var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(fr) fr.addEventListener('click', function(){ setLang('fr'); }); if(en) en.addEventListener('click', function(){ setLang('en'); }); });
       })();
     </script>
-  </body>
+      <script>
+      (function(){
+        function qs(s){ return document.querySelector(s); }
+        function qsa(s){ return Array.from(document.querySelectorAll(s)); }
+        function setActiveTab(tab){
+          qsa(".tab-btn").forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+          qs('#pane-dash').hidden = (tab!=='dash');
+          qs('#pane-trades').hidden = (tab!=='trades');
+        }
+        function drawBars(canvas, data){
+          var ctx = canvas.getContext('2d');
+          var dpr = window.devicePixelRatio||1; var w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          var n = data.length; if(!n) return;
+          var dates = data.map(function(d){return d.date});
+          var vals = data.map(function(d){return +d.pnl_usd});
+          var min = Math.min.apply(null, [0].concat(vals));
+          var max = Math.max.apply(null, [0].concat(vals));
+          var pad = 24; var x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
+          var barW = Math.max(8, Math.floor(W/(n*1.5)));
+          var xStep = W/n;
+          function yScale(v){ return y0 + H - ( (v-min) / ( (max-min)||1 ) * H ); }
+          var yZero = yScale(0); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0,yZero); ctx.lineTo(x0+W,yZero); ctx.stroke();
+          for(var i=0;i<n;i++){
+            var x = x0 + i*xStep + (xStep-barW)/2;
+            var y = yScale(vals[i]);
+            ctx.fillStyle = (vals[i]>=0 ? '#4caf50' : '#f44336');
+            ctx.fillRect(x, Math.min(y,yZero), barW, Math.abs(y - yZero));
+          }
+          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='12px system-ui';
+          for(var j=0;j<n;j+=Math.ceil(n/4)){
+            var tx = x0 + j*xStep; ctx.fillText(dates[j], tx, h-6);
+          }
+        }
+        function drawLine(canvas, data){
+          var ctx = canvas.getContext('2d');
+          var dpr = window.devicePixelRatio||1; var w = canvas.clientWidth, h = canvas.clientHeight;
+          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          var n = data.length; if(!n) return;
+          var vals = []; var acc=0; for(var i=0;i<n;i++){ acc += +data[i].pnl_usd; vals.push(acc); }
+          var min = Math.min.apply(null, vals); var max = Math.max.apply(null, vals);
+          var pad = 24; var x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
+          function yScale(v){ return y0 + H - ( (v-min) / ( (max-min)||1 ) * H ); }
+          function xScale(i){ return x0 + ( (n<=1?0:i/(n-1)) * W ); }
+          ctx.strokeStyle='#4aa3ff'; ctx.lineWidth=2; ctx.beginPath();
+          for(var k=0;k<n;k++){ var x=xScale(k), y=yScale(vals[k]); if(k){ ctx.lineTo(x,y); } else { ctx.moveTo(x,y); } }
+          ctx.stroke();
+          var yZero = yScale(0); ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0,yZero); ctx.lineTo(x0+W,yZero); ctx.stroke();
+        }
+        function updateTabLabels(){
+          var fr = (localStorage.getItem('site.lang')||'fr')==='fr';
+          var td=document.getElementById('tab-dash'); var tt=document.getElementById('tab-trades');
+          if(td) td.textContent = fr ? 'Tableau de bord' : 'Dashboard';
+          if(tt) tt.textContent = 'Trades';
+        }
+        async function load(){
+          updateTabLabels();
+          var tabs = Array.from(document.querySelectorAll('.tab-btn')); tabs.forEach(function(b){ b.addEventListener('click', function(){ setActiveTab(b.dataset.tab); }); });
+          setActiveTab('dash');
+          try{
+            var r = await fetch('opening_range_reports/summary.json?ts='+Date.now());
+            var sum = await r.json();
+            var last10 = (sum.last_10||[]);
+            drawBars(document.getElementById('chart-bars'), last10);
+            drawLine(document.getElementById('chart-cum'), last10);
+            window.addEventListener('resize', function(){
+              drawBars(document.getElementById('chart-bars'), last10);
+              drawLine(document.getElementById('chart-cum'), last10);
+            });
+          }catch(e){ console.warn('Charts load failed', e); }
+        }
+        window.addEventListener('DOMContentLoaded', load);
+      })();
+    </script></body>
   </html>
