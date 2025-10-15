@@ -84,16 +84,27 @@
               </div>
             </section>
             <section class="card">
+              <h3 style="margin:0 0 8px">Règles de la stratégie ORB NQ</h3>
+              <ul style="margin:0; padding-left:18px; line-height:1.5; font-size:14px; opacity:0.9;">
+                <li>Instrument : E-mini Nasdaq (NQ), données minute US/Eastern.</li>
+                <li>Opening range calculée 9h30–9h45 ET, déclencheurs à ±2 points du range.</li>
+                <li>Un seul trade par séance : entrée au breakout long/short, fenêtre active 390 min.</li>
+                <li>Gestion : objectif fixe +20 pts, trailing stop dynamique à 15 pts.</li>
+                <li>Passage break-even après +15 pts, sinon sortie sur trailing stop ou fin de séance.</li>
+                <li>Valorisation : 20 $/point. Reporting automatique sur les 10 derniers jours.</li>
+              </ul>
+            </section>
+            <section class="card">
               <h3 style="margin:0 0 8px">Trade du jour</h3>
               <div class="row" id="tradeBox">
                 <div class="metric"><div class="label">Direction</div><div class="value" id="dir">—</div></div>
                 <div class="metric"><div class="label">Entrée</div><div class="value" id="entry">—</div></div>
-                <div class="metric"><div class="label">Stop</div><div class="value" id="stop">—</div></div>
-                <div class="metric"><div class="label">Watermark</div><div class="value" id="wm">—</div></div>
+                <div class="metric"><div class="label">Sortie</div><div class="value" id="stop">—</div></div>
+                <div class="metric"><div class="label">Raison</div><div class="value" id="wm">—</div></div>
                 <div class="metric"><div class="label">PnL (pts)</div><div class="value" id="upnlPts">—</div></div>
                 <div class="metric"><div class="label">PnL ($)</div><div class="value" id="upnlUsd">—</div></div>
               </div>
-              <div class="label" style="margin-top:8px">Un seul trade par séance; sortie sur TP, trailing stop ou fin de fenêtre.</div>
+              <div class="label" style="margin-top:8px">Dernier trade clôturé de la séance (données mises à jour automatiquement).</div>
             </section>
             
           <section class="card">
@@ -144,7 +155,7 @@
         });
       }
 
-      const SYMBOL = 'NASDAQ:GOOGL';
+      const SYMBOL = 'CME_MINI:NQ1!';
       const storageKey = 'site.lang';
       let currentLang = (localStorage.getItem(storageKey) || 'fr');
 
@@ -227,54 +238,124 @@
           for(let i=0;i<n;i+=Math.ceil(n/4)){ const x=x0+i*xStep; ctx.fillText(dates[i], x, h-6); }
         }
 
-        async function loadJSON(path){ const r = await fetch(path + '?t=' + Date.now()); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }
-        function fmt(n){ return (typeof n === 'number') ? n.toFixed(2) : n; }
-        function pct(n){ return (n*100).toFixed(1) + '%'; }
+        async function fetchText(path){
+          const res = await fetch(path + '?t=' + Date.now());
+          if (!res.ok) throw new Error('HTTP '+res.status);
+          return res.text();
+        }
+        function parseCSV(text){
+          const lines = text.trim().split(/\r?\n/);
+          if (!lines.length) return [];
+          const headers = lines.shift().split(',').map(h => h.trim());
+          return lines.filter(Boolean).map(line => {
+            const cols = line.split(',');
+            const obj = {};
+            headers.forEach((key, idx) => { obj[key] = (cols[idx] !== undefined ? cols[idx].trim() : ''); });
+            return obj;
+          });
+        }
+        const POINT_VALUE = 20;
+        function fmt(n, digits=2){
+          const num = Number(n);
+          if (!Number.isFinite(num)) return '—';
+          return num.toFixed(digits);
+        }
+        function fmtUSD(n){
+          const num = Number(n);
+          if (!Number.isFinite(num)) return '—';
+          return '$' + num.toFixed(2);
+        }
+        function pct(n, digits=1){
+          const num = Number(n);
+          if (!Number.isFinite(num)) return '—';
+          return num.toFixed(digits) + '%';
+        }
+        function formatTime(iso){
+          if (!iso) return '—';
+          const dt = new Date(iso);
+          if (Number.isNaN(dt.getTime())) return iso;
+          return dt.toLocaleTimeString('fr-FR', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit' });
+        }
+        async function loadSummary(){
+          const text = await fetchText('opening_range_reports/summary_last_10_days.csv');
+          const rows = parseCSV(text).map(r => ({
+            date: r.date,
+            trades: Number(r.trades),
+            wins: Number(r.wins),
+            win_rate: Number(r.win_rate),
+            profit_points: Number(r.profit),
+          })).filter(r => r.date);
+          const totals = rows.reduce((acc, r) => {
+            acc.trades += Number.isFinite(r.trades) ? r.trades : 0;
+            acc.wins += Number.isFinite(r.wins) ? r.wins : 0;
+            acc.profit_points += Number.isFinite(r.profit_points) ? r.profit_points : 0;
+            return acc;
+          }, { trades:0, wins:0, profit_points:0 });
+          const lastDate = rows.length ? rows[rows.length-1].date : null;
+          return { rows, totals, lastDate };
+        }
+        async function loadTrades(dateStr){
+          if (!dateStr) return null;
+          const text = await fetchText(`opening_range_reports/trades_${dateStr}.csv`);
+          const rows = parseCSV(text).map(r => ({
+            date: r.date,
+            direction: (r.direction || '').toLowerCase(),
+            entry_time: r.entry_time,
+            entry_price: Number(r.entry_price),
+            exit_time: r.exit_time,
+            exit_price: Number(r.exit_price),
+            reason: r.reason || '',
+            opening_range_high: Number(r.opening_range_high),
+            opening_range_low: Number(r.opening_range_low),
+            profit_points: Number(r.profit_points || r.profit || 0),
+          }));
+          return rows;
+        }
         async function refresh(){
           try{
-            const latest = await loadJSON('opening_range_reports/latest.json');
-            const summary = latest.summary || (await loadJSON('opening_range_reports/summary.json').catch(()=>null));
-            document.getElementById('status').textContent = latest.status || '—';
-            const d = latest.session_date || '—';
-            document.getElementById('date').textContent = d;
-            document.getElementById('now').textContent = latest.now_et ? new Date(latest.now_et).toLocaleTimeString('fr-FR',{ timeZone:'America/New_York' }) : '—';
-            const winrate = summary && summary.winrate != null ? pct(summary.winrate) : '—';
-            const pnl10 = summary ? ('$'+fmt(summary.total_pnl_usd)) : '—';
-            document.getElementById('winrate').textContent = winrate;
-            document.getElementById('pnl10').textContent = pnl10;
-            const orb = latest.opening_range || {};
-            document.getElementById('orbHigh').textContent = fmt(orb.high);
-            document.getElementById('orbLow').textContent = fmt(orb.low);
-            document.getElementById('longLvl').textContent = fmt(orb.long_level);
-            document.getElementById('shortLvl').textContent = fmt(orb.short_level);
-            const t = latest.trade || {};
-            const open = t.open;
-            document.getElementById('dir').textContent = open ? t.direction : (t.trade_executed ? 'Terminé' : 'Aucun');
-            document.getElementById('entry').textContent = open && t.entry_time ? (fmt(t.entry_price) + ' @ ' + new Date(t.entry_time).toLocaleTimeString('fr-FR',{ timeZone:'America/New_York' })) : (open?fmt(t.entry_price):'—');
-            document.getElementById('stop').textContent = open ? fmt(t.stop_price) : '—';
-            document.getElementById('wm').textContent = open ? fmt(t.watermark_price) : '—';
-            const pts = open ? t.unrealized_pnl_points : 0;
-            const usd = open ? t.unrealized_pnl_usd : 0;
+            const summary = await loadSummary();
+            const totals = summary.totals;
+            document.getElementById('status').textContent = 'Historique ORB (auto)';
+            const latestDate = summary.lastDate || '—';
+            document.getElementById('date').textContent = latestDate;
+            document.getElementById('now').textContent = new Date().toLocaleTimeString('fr-FR',{ timeZone:'America/New_York' });
+            const winrate = totals.trades ? (totals.wins / totals.trades * 100) : null;
+            const pnlUsd = totals.profit_points * POINT_VALUE;
+            document.getElementById('winrate').textContent = pct(winrate);
+            document.getElementById('pnl10').textContent = fmtUSD(pnlUsd);
+
+            const trades = await loadTrades(summary.lastDate).catch(() => null);
+            const orHigh = trades && trades.length ? trades[0].opening_range_high : null;
+            const orLow = trades && trades.length ? trades[0].opening_range_low : null;
+            const longLvl = Number.isFinite(orHigh) ? orHigh + 2 : null;
+            const shortLvl = Number.isFinite(orLow) ? orLow - 2 : null;
+            document.getElementById('orbHigh').textContent = fmt(orHigh);
+            document.getElementById('orbLow').textContent = fmt(orLow);
+            document.getElementById('longLvl').textContent = fmt(longLvl);
+            document.getElementById('shortLvl').textContent = fmt(shortLvl);
+
+            const lastTrade = trades && trades.length ? trades[trades.length-1] : null;
+            document.getElementById('dir').textContent = lastTrade ? lastTrade.direction.toUpperCase() : '—';
+            document.getElementById('entry').textContent = lastTrade ? `${fmt(lastTrade.entry_price)} @ ${formatTime(lastTrade.entry_time)}` : '—';
+            document.getElementById('stop').textContent = lastTrade ? `${fmt(lastTrade.exit_price)} @ ${formatTime(lastTrade.exit_time)}` : '—';
+            document.getElementById('wm').textContent = lastTrade && lastTrade.reason ? lastTrade.reason.replace(/_/g,' ') : '—';
             const ptsEl = document.getElementById('upnlPts');
             const usdEl = document.getElementById('upnlUsd');
-            ptsEl.textContent = open ? fmt(pts) : '—';
-            usdEl.textContent = open ? ('$'+fmt(usd)) : '—';
+            const pts = lastTrade ? lastTrade.profit_points : null;
+            const usd = Number.isFinite(pts) ? pts * POINT_VALUE : null;
+            ptsEl.textContent = fmt(pts);
+            usdEl.textContent = fmtUSD(usd);
             ptsEl.className = 'value ' + (pts>0?'green':pts<0?'red':'');
             usdEl.className = 'value ' + (usd>0?'green':usd<0?'red':'');
-            const tbody = document.querySelector('#tbl tbody'); if (tbody){ tbody.innerHTML=''; (summary && summary.last_10 ? summary.last_10 : []).slice().reverse().forEach(function(r){
-              const tr = document.createElement('tr');
-              tr.innerHTML = '<td>'+ (r.date||'') +'</td><td>'+ (r.direction||'') +'</td><td>'+ (fmt(r.entry_price)||'') +'</td><td>'+ (fmt(r.exit_price)||'') +'</td><td>'+ (fmt(r.pnl_points)||'') +'</td><td>$'+ (fmt(r.pnl_usd)||'') +'</td>';
-              tbody.appendChild(tr);
-            }); }
-            // Charts
-            const last10 = (summary && summary.last_10) ? summary.last_10 : [];
-            const bars = document.getElementById('chart-bars'); if (bars) drawBars(bars, last10);
+
+            const barsData = summary.rows.map(r => ({ date: r.date, pnl_usd: Number.isFinite(r.profit_points) ? r.profit_points * POINT_VALUE : 0 }));
+            const bars = document.getElementById('chart-bars'); if (bars) drawBars(bars, barsData);
 
             // Today price chart
-            const today = await loadJSON('opening_range_reports/intraday_today.json').catch(()=>null);
+            const today = null;
             const canvasToday = document.getElementById('chart-today');
             if (today && canvasToday) {
-              drawCandles(canvasToday, today.candles||[], latest.opening_range||{}, latest.trade||{}, latest.session_date);
+              drawCandles(canvasToday, today.candles||[], {}, {}, summary.lastDate);
             }
             // Try TradingView live widget (primary), keep canvas as fallback
             if (document.getElementById('chart-tv')) {
@@ -298,7 +379,7 @@
                 var s = document.createElement('script'); s.src = 'https://s3.tradingview.com/tv.js'; s.onload = bootTV; document.head.appendChild(s);
               } else { bootTV(); }
             }
-          }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement'; }
+          }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement (vérifiez les fichiers CSV)'; }
         }
         window.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
       })();
