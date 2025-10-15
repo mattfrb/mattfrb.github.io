@@ -3,440 +3,378 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Algo Bot — Matthieu Farbos</title>
-    <meta name="description" content="Algo Bot — à venir" />
-    <link rel="prefetch" href="index.html" />
-    <link rel="prefetch" href="projets.html" />
+    <title>Algo Bot – ORB NQ</title>
+    <meta name="description" content="Tableau de bord statique pour la stratégie Opening Range Breakout sur le Nasdaq (NQ)." />
     <style>
-      html, body { height: 100%; margin: 0; }
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b0f14; color: #fff; overflow: auto; opacity: 0; transition: opacity .25s ease; }
-      #bg { position: fixed; inset: 0; z-index: 0; background: #0a0e12; }
-
-      .overlay { position: relative; z-index: 10; height: 100dvh; display: block; padding: 0; text-align: left; }
-      h1 { margin: 0 0 8px; font-weight: 700; font-size: clamp(28px, 6vw, 64px); line-height: 1.15; text-shadow: 0 2px 16px rgba(0,0,0,0.6); }
-      p.sub { margin: 0; opacity: .8; }
-
-      .credit { position: fixed; right: 8px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.65; }
-      .credit a { color: #fff; }
-      .credit-name { position: fixed; left: 28px; bottom: 56px; z-index: 1; font-size: 12px; opacity: 0.75; }
-
-      .footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(10,14,18,0.72); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px; }
-      .footer .links { display: flex; gap: 16px; align-items: center; }
-      .footer a { color: #fff; text-decoration: none; opacity: 0.9; }
-      .footer a:hover { opacity: 1; text-decoration: underline; }
-      .footer .lang { display: flex; align-items: center; gap: 8px; }
-      .footer .lang label { opacity: 0.8; }
-      .footer .lang button { appearance: none; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; }
-      .footer .lang button:hover { background: rgba(255,255,255,0.12); }
-      .footer .lang button.active { background: rgba(66,133,244,0.35); border-color: rgba(66,133,244,0.6); }
-      .btn-back { position: fixed; top: 8px; left: 8px; z-index: 30; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; background: rgba(255,255,255,0.06); }
-      .btn-back:hover { background: rgba(255,255,255,0.12); }
-      :root{ --topbar-h: 0px; --footer-h: 56px; --banner-h: 36px; }
-      .topbar{ position: sticky; top: 0; z-index: 30; display:flex; align-items:center; justify-content: space-between; gap:12px; padding: 10px 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-      
-      
-      
-      .panes{ height: calc(100vh - var(--topbar-h) - var(--footer-h)); }
-      .pane{ height: 100%; }
-      .pane iframe{ width:100%; height:100%; border:0; display:block; background:#0b1020; }
-      .charts{ height:100%; display:flex; flex-direction:column; gap:12px; padding:12px; }
-      .chartbox{ flex:1 1 0; min-height: 240px; background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px; }
-      .chartbox canvas{ width:100%; height:100%; display:block; }
-      .credit, .credit-name{ display:none !important; }
-      /* ORB dashboard styles (inline, replaces iframe) */
-      .orb-wrap{ width:100%; height:100%; box-sizing:border-box; padding:12px 16px; }
-      .orb-grid{ display:grid; gap:16px; width:100%; height:140%; box-sizing:border-box; grid-template-columns: 1fr; }
-      .card{ background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 14px; }
-      .row{ display:flex; flex-wrap:wrap; gap:12px }
-      .metric{ flex:1 1 180px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:10px }
-      .label{ font-size:12px; opacity:.8 }
-      .value{ font-size:20px; margin-top:4px }
-      .instrument-banner{ box-sizing:border-box; height: var(--banner-h); display:flex; align-items:center; justify-content:center; padding: 0 16px; background: rgba(10,14,18,0.9); border-bottom:1px solid rgba(255,255,255,0.08); font-weight:700; letter-spacing:.2px; text-align:center }
-      .green{ color:#4caf50 } .red{ color:#f44336 }
-      table{ width:100%; border-collapse:collapse }
-      th,td{ border-bottom:1px solid rgba(255,255,255,0.12); padding:8px 6px; text-align:left }
-      th{ opacity:.75; font-weight:600 }
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f14;
+        --panel: rgba(22, 28, 38, 0.95);
+        --border: rgba(255, 255, 255, 0.08);
+        --accent: #4285f4;
+        --success: #4caf50;
+        --danger: #ff5252;
+        --warning: #ffa726;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #152031 0%, var(--bg) 55%);
+        color: #eef3ff;
+        display: flex;
+        justify-content: center;
+        padding: 32px 16px 48px;
+      }
+      main {
+        width: min(1024px, 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: baseline;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 48px);
+        letter-spacing: 0.02em;
+      }
+      header p {
+        margin: 0;
+        opacity: 0.7;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 18px 40px -32px rgba(0, 0, 0, 0.65);
+      }
+      section h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 20px;
+      }
+      .strategy ul {
+        margin: 0;
+        padding-left: 18px;
+        line-height: 1.55;
+        opacity: 0.85;
+      }
+      .metrics {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+      .metric {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .metric .label {
+        font-size: 13px;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .metric .value {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      thead {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      th, td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: left;
+      }
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.023);
+      }
+      tbody tr:hover {
+        background: rgba(66, 133, 244, 0.12);
+      }
+      .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .tag.long { background: rgba(76, 175, 80, 0.18); color: var(--success); }
+      .tag.short { background: rgba(239, 83, 80, 0.18); color: var(--danger); }
+      .timestamp {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      footer {
+        text-align: center;
+        font-size: 13px;
+        opacity: 0.55;
+      }
+      .error {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: rgba(255, 82, 82, 0.18);
+        border: 1px solid rgba(255, 82, 82, 0.4);
+        color: #ffbaba;
+        display: none;
+      }
+      @media (max-width: 720px) {
+        body { padding: 20px 10px 36px; }
+        section { padding: 16px; }
+        table { font-size: 14px; }
+        th, td { padding: 8px 10px; }
+      }
     </style>
   </head>
   <body>
-    <div id="bg"></div>    <a class="btn-back" href="projets.html" id="back-link">&#8592; Retour aux projets</a>
+    <main>
+      <header>
+        <h1>Algo Bot ORB – NQ</h1>
+        <p id="last-update" class="timestamp">Chargement…</p>
+      </header>
 
-            <main class="overlay" style="height:auto; display:block; text-align:left; padding:0;"><div id="dash-area" style="height: calc(100vh - var(--footer-h) - var(--banner-h)); overflow:auto; -webkit-overflow-scrolling: touch;">
-        <div class="instrument-banner">E‑mini Nasdaq 100 (NQ futures)</div>
-        <div class="orb-wrap">
-          <div class="orb-grid">
-            <section class="card" id="status-card">
-              <div class="row">
-                <div class="metric"><div class="label">Statut</div><div class="value" id="status">—</div></div>
-                <div class="metric"><div class="label">Date (ET)</div><div class="value" id="date">—</div></div>
-                <div class="metric"><div class="label">Heure</div><div class="value" id="now">—</div></div>
-                <div class="metric"><div class="label">Winrate (10 j)</div><div class="value" id="winrate">—</div></div>
-                <div class="metric"><div class="label">PnL total (10 j)</div><div class="value" id="pnl10">—</div></div>
-              </div>
-            </section>
-            <section class="card">
-              <h3 style="margin:0 0 8px">Fourchette d'ouverture</h3>
-              <div class="row">
-                <div class="metric"><div class="label">High (9:30–9:45)</div><div class="value" id="orbHigh">—</div></div>
-                <div class="metric"><div class="label">Low (9:30–9:45)</div><div class="value" id="orbLow">—</div></div>
-                <div class="metric"><div class="label">Long lvl (H+2)</div><div class="value" id="longLvl">—</div></div>
-                <div class="metric"><div class="label">Short lvl (L-2)</div><div class="value" id="shortLvl">—</div></div>
-              </div>
-            </section>
-            <section class="card">
-              <h3 style="margin:0 0 8px">Règles de la stratégie ORB NQ</h3>
-              <ul style="margin:0; padding-left:18px; line-height:1.5; font-size:14px; opacity:0.9;">
-                <li>Instrument : E-mini Nasdaq (NQ), données minute US/Eastern.</li>
-                <li>Opening range calculée 9h30–9h45 ET, déclencheurs à ±2 points du range.</li>
-                <li>Un seul trade par séance : entrée au breakout long/short, fenêtre active 390 min.</li>
-                <li>Gestion : objectif fixe +20 pts, trailing stop dynamique à 15 pts.</li>
-                <li>Passage break-even après +15 pts, sinon sortie sur trailing stop ou fin de séance.</li>
-                <li>Valorisation : 20 $/point. Reporting automatique sur les 10 derniers jours.</li>
-              </ul>
-            </section>
-            <section class="card">
-              <h3 style="margin:0 0 8px">Trade du jour</h3>
-              <div class="row" id="tradeBox">
-                <div class="metric"><div class="label">Direction</div><div class="value" id="dir">—</div></div>
-                <div class="metric"><div class="label">Entrée</div><div class="value" id="entry">—</div></div>
-                <div class="metric"><div class="label">Sortie</div><div class="value" id="stop">—</div></div>
-                <div class="metric"><div class="label">Raison</div><div class="value" id="wm">—</div></div>
-                <div class="metric"><div class="label">PnL (pts)</div><div class="value" id="upnlPts">—</div></div>
-                <div class="metric"><div class="label">PnL ($)</div><div class="value" id="upnlUsd">—</div></div>
-              </div>
-              <div class="label" style="margin-top:8px">Dernier trade clôturé de la séance (données mises à jour automatiquement).</div>
-            </section>
-            
-          <section class="card">
-            <h3 style="margin:0 0 8px">Graphiques des trades</h3>
-            <div class="charts">
-              <div class="chartbox"><canvas id="chart-bars"></canvas></div>
-            </div>
-          </section>
-          <section class="card">
-            <h3 style="margin:0 0 8px">Cours du jour (NQ)</h3>
-            <div class="chartbox" style="height:420px; position:relative;">
-              <div id="chart-tv" style="position:absolute; inset:8px 8px 8px 8px;"></div>
-              <canvas id="chart-today" style="position:absolute; inset:8px 8px 8px 8px;"></canvas>
-            </div>
-          </section>
+      <section class="strategy">
+        <h2>Règles de la stratégie</h2>
+        <ul>
+          <li>Instrument&nbsp;: E-mini Nasdaq (NQ), données minute (heure US/Eastern).</li>
+          <li>Calcul de l’Opening Range sur la fenêtre 09:30–09:45 ET, déclencheur à ±2 points.</li>
+          <li>Un trade maximum par sens simultanément&nbsp;: entrée sur breakout long/short après 09:45.</li>
+          <li>Gestion&nbsp;: take-profit fixe +20 pts, trailing stop dynamique 15 pts derrière le watermark.</li>
+          <li>Passage break-even dès +15 pts ; sortie sinon sur trailing stop ou fin de fenêtre de 390 min.</li>
+          <li>Valorisation&nbsp;: 1 point = 20&nbsp;$ sur le contrat NQ. Rapport consolidé sur les 10 dernières séances.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Statistiques (10 dernières séances)</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Win rate</div>
+            <div class="value" id="metric-winrate">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Trades gagnés / total</div>
+            <div class="value" id="metric-ratio">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Profit total</div>
+            <div class="value" id="metric-profit-usd">—</div>
+            <span class="timestamp" id="metric-profit-pts">—</span>
+          </div>
+          <div class="metric">
+            <div class="label">Dernière séance</div>
+            <div class="value" id="metric-last-date">—</div>
+          </div>
         </div>
-      </div>
-    </div>
+        <div class="error" id="summary-error">Impossible de lire <code>opening_range_reports/summary_last_10_days.csv</code>.</div>
+      </section>
+
+      <section>
+        <h2>Derniers trades de la séance</h2>
+        <div class="metrics" style="margin-bottom:12px;">
+          <div class="metric">
+            <div class="label">Direction</div>
+            <div class="value" id="trade-direction">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Entrée</div>
+            <div class="value" id="trade-entry">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Sortie</div>
+            <div class="value" id="trade-exit">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">PnL</div>
+            <div class="value" id="trade-pnl">—</div>
+            <span class="timestamp" id="trade-reason">—</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Direction</th>
+              <th>Entrée</th>
+              <th>Sortie</th>
+              <th>Raison</th>
+              <th>PnL (pts)</th>
+              <th>PnL ($)</th>
+            </tr>
+          </thead>
+          <tbody id="trades-body">
+            <tr><td colspan="7" style="text-align:center; padding:24px 12px;">Chargement en cours…</td></tr>
+          </tbody>
+        </table>
+        <div class="error" id="trades-error">Impossible de lire les fichiers <code>trades_YYYY-MM-DD.csv</code>.</div>
+      </section>
+
+      <footer>
+        Actualisation automatique toutes les 60&nbsp;secondes (données locales statiques).
+      </footer>
     </main>
 
-    <div class="credit">Données et graphique par <a href="https://www.tradingview.com/widget/advanced-chart/" target="_blank" rel="noopener">TradingView</a></div>
-    <div class="credit-name">© Matthieu Farbos</div>
-
-    <nav class="footer" aria-label="Navigation bas de page">
-      <div class="links">
-        <a href="index.html" id="nav-home">Accueil</a>
-        <a href="projets.html" id="nav-projects">Projets</a>
-      </div>
-      <div class="lang" role="group" aria-label="Choix de langue">
-        <label>Langue:</label>
-        <button type="button" data-lang="fr" aria-pressed="false" id="btn-fr">FR</button>
-        <button type="button" data-lang="en" aria-pressed="false" id="btn-en">EN</button>
-      </div>
-    </nav>
-
-    <!-- No TradingView script on this page background -->
     <script>
-      // Seamless page transitions
-      function setupTransitions() {
-        requestAnimationFrame(() => { document.body.style.opacity = '1'; });
-        document.querySelectorAll('a[href]').forEach(a => {
-          const href = a.getAttribute('href');
-          if (!href || href.startsWith('http') || href.startsWith('#') || a.target === '_blank') return;
-          a.addEventListener('click', (e) => {
-            e.preventDefault(); document.body.style.opacity = '0';
-            setTimeout(() => { window.location.href = a.href; }, 200);
-          });
+      const POINT_VALUE = 20;
+      const DATA_ROOT = 'opening_range_reports';
+      const SUMMARY_FILE = `${DATA_ROOT}/summary_last_10_days.csv`;
+
+      const $ = (id) => document.getElementById(id);
+
+      function formatNumber(value, digits = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return '—';
+        return num.toFixed(digits);
+      }
+
+      function formatUSD(value) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return '—';
+        return `$${num.toFixed(2)}`;
+      }
+
+      function formatTime(isoString) {
+        if (!isoString) return '—';
+        const dt = new Date(isoString);
+        if (Number.isNaN(dt.getTime())) return isoString;
+        return dt.toLocaleTimeString('fr-FR', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function parseCSV(text) {
+        const lines = text.trim().split(/\r?\n/);
+        if (!lines.length) return [];
+        const headers = lines.shift().split(',').map((h) => h.trim());
+        return lines.filter(Boolean).map((line) => {
+          const cols = line.split(',');
+          return headers.reduce((acc, header, idx) => {
+            acc[header] = cols[idx] !== undefined ? cols[idx].trim() : '';
+            return acc;
+          }, {});
         });
       }
 
-      const SYMBOL = 'CME_MINI:NQ1!';
-      const storageKey = 'site.lang';
-      let currentLang = (localStorage.getItem(storageKey) || 'fr');
-
-      function setActiveButtons() {
-        const frBtn = document.getElementById('btn-fr');
-        const enBtn = document.getElementById('btn-en');
-        frBtn.classList.toggle('active', currentLang === 'fr');
-        enBtn.classList.toggle('active', currentLang === 'en');
-        frBtn.setAttribute('aria-pressed', String(currentLang === 'fr'));
-        enBtn.setAttribute('aria-pressed', String(currentLang === 'en'));
+      async function fetchCSV(path) {
+        const response = await fetch(path + `?t=${Date.now()}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return parseCSV(await response.text());
       }
 
-      function initChart() { /* disabled */ }
-
-      function applyLanguage(lang) {
-        currentLang = (lang === 'en') ? 'en' : 'fr';
-        localStorage.setItem(storageKey, currentLang);
-        setActiveButtons();
-        const navHome = document.getElementById('nav-home');
-        const navProjects = document.getElementById('nav-projects');
-        const langLabel = document.querySelector('.lang label');
-        const title = document.getElementById('title');
-        const subtitle = document.getElementById('subtitle');
-        const back = document.getElementById('back-link');
-        if (currentLang === 'fr') {
-          navHome.textContent = 'Accueil'; navProjects.textContent = 'Projets'; langLabel.textContent = 'Langue:';
-          title.textContent = 'Algo Bot'; subtitle.textContent = 'Suivi live ORB NQ'; var td=document.getElementById('tab-dash'); var tt=document.getElementById('tab-trades'); if(td){td.textContent='Tableau de bord';} if(tt){tt.textContent='Trades';} back.textContent = '? Retour aux projets';
-        } else {
-          navHome.textContent = 'Home'; navProjects.textContent = 'Projects'; langLabel.textContent = 'Language:';
-          title.textContent = 'Algo Bot'; subtitle.textContent = 'Live ORB NQ'; var td=document.getElementById('tab-dash'); var tt=document.getElementById('tab-trades'); if(td){td.textContent='Dashboard';} if(tt){tt.textContent='Trades';} back.textContent = '? Back to projects';
-        }
-        if (window.TradingView) initChart();
-      }
-
-      if (window.TradingView) { initChart(); }
-      else { window.addEventListener('load', initChart); }
-
-      window.addEventListener('DOMContentLoaded', function() {
-        setupTransitions();
-        setActiveButtons();
-        applyLanguage(currentLang);
-        document.getElementById('btn-fr').addEventListener('click', () => applyLanguage('fr'));
-        document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
-      });
-    </script>
-    <script>
-      // ORB live data loader on this page
-      (function(){
-        function drawBars(canvas, data){
-          const ctx = canvas.getContext('2d');
-          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
-          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-          ctx.clearRect(0,0,w,h);
-          const n = data.length; if(!n) return;
-          const dates = data.map(d=>d.date);
-          const vals = data.map(d=>+d.pnl_usd);
-          const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
-          const pad = 28; const x0=pad, y0=pad, W=w-2*pad, H=h-2*pad;
-          const barW = Math.max(8, Math.floor(W/(n*1.5)));
-          const xStep = W/n;
-          const yScale = v => y0 + H - ((v-min)/((max-min)||1))*H;
-          const yZero = yScale(0);
-          ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0,yZero); ctx.lineTo(x0+W,yZero); ctx.stroke();
-          for (let i=0;i<n;i++){
-            const x = x0 + i*xStep + (xStep-barW)/2; const y = yScale(vals[i]);
-            const isPos = vals[i] >= 0;
-            const barColor = isPos ? '#4caf50' : '#f44336';
-            ctx.fillStyle = barColor;
-            ctx.fillRect(x, Math.min(y,yZero), barW, Math.abs(y - yZero));
-            // Value labels in USD on each bar
-            const label = (isPos?'+':'') + '$' + Math.round(vals[i]).toString();
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
-            ctx.textAlign = 'center';
-            const lx = x + barW/2;
-            const ly = isPos ? (y - 4) : (y + 12);
-            ctx.fillText(label, lx, ly);
-          }
-          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='12px system-ui';
-          for(let i=0;i<n;i+=Math.ceil(n/4)){ const x=x0+i*xStep; ctx.fillText(dates[i], x, h-6); }
-        }
-
-        async function fetchText(path){
-          const res = await fetch(path + '?t=' + Date.now());
-          if (!res.ok) throw new Error('HTTP '+res.status);
-          return res.text();
-        }
-        function parseCSV(text){
-          const lines = text.trim().split(/\r?\n/);
-          if (!lines.length) return [];
-          const headers = lines.shift().split(',').map(h => h.trim());
-          return lines.filter(Boolean).map(line => {
-            const cols = line.split(',');
-            const obj = {};
-            headers.forEach((key, idx) => { obj[key] = (cols[idx] !== undefined ? cols[idx].trim() : ''); });
-            return obj;
-          });
-        }
-        const POINT_VALUE = 20;
-        function fmt(n, digits=2){
-          const num = Number(n);
-          if (!Number.isFinite(num)) return '—';
-          return num.toFixed(digits);
-        }
-        function fmtUSD(n){
-          const num = Number(n);
-          if (!Number.isFinite(num)) return '—';
-          return '$' + num.toFixed(2);
-        }
-        function pct(n, digits=1){
-          const num = Number(n);
-          if (!Number.isFinite(num)) return '—';
-          return num.toFixed(digits) + '%';
-        }
-        function formatTime(iso){
-          if (!iso) return '—';
-          const dt = new Date(iso);
-          if (Number.isNaN(dt.getTime())) return iso;
-          return dt.toLocaleTimeString('fr-FR', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit' });
-        }
-        async function loadSummary(){
-          const text = await fetchText('opening_range_reports/summary_last_10_days.csv');
-          const rows = parseCSV(text).map(r => ({
-            date: r.date,
-            trades: Number(r.trades),
-            wins: Number(r.wins),
-            win_rate: Number(r.win_rate),
-            profit_points: Number(r.profit),
-          })).filter(r => r.date);
-          const totals = rows.reduce((acc, r) => {
-            acc.trades += Number.isFinite(r.trades) ? r.trades : 0;
-            acc.wins += Number.isFinite(r.wins) ? r.wins : 0;
-            acc.profit_points += Number.isFinite(r.profit_points) ? r.profit_points : 0;
+      async function loadSummary() {
+        const summaryRows = await fetchCSV(SUMMARY_FILE);
+        const totals = summaryRows.reduce(
+          (acc, row) => {
+            const trades = Number(row.trades);
+            const wins = Number(row.wins);
+            const profitPts = Number(row.profit);
+            if (Number.isFinite(trades)) acc.trades += trades;
+            if (Number.isFinite(wins)) acc.wins += wins;
+            if (Number.isFinite(profitPts)) acc.profitPts += profitPts;
             return acc;
-          }, { trades:0, wins:0, profit_points:0 });
-          const lastDate = rows.length ? rows[rows.length-1].date : null;
-          return { rows, totals, lastDate };
+          },
+          { trades: 0, wins: 0, profitPts: 0 }
+        );
+        const lastDate = summaryRows.length ? summaryRows[summaryRows.length - 1].date : null;
+        return { rows: summaryRows, totals, lastDate };
+      }
+
+      async function loadTrades(date) {
+        if (!date) return [];
+        return await fetchCSV(`${DATA_ROOT}/trades_${date}.csv`);
+      }
+
+      function updateSummaryUI(summary) {
+        const { totals, rows, lastDate } = summary;
+        const winRate = totals.trades ? (totals.wins / totals.trades) * 100 : null;
+        $('metric-winrate').textContent = winRate !== null ? `${formatNumber(winRate, 2)}%` : '—';
+        $('metric-ratio').textContent = `${totals.wins} / ${totals.trades}`;
+        $('metric-profit-usd').textContent = formatUSD(totals.profitPts * POINT_VALUE);
+        $('metric-profit-pts').textContent = `${formatNumber(totals.profitPts, 2)} pts`;
+        $('metric-last-date').textContent = lastDate || '—';
+
+        $('summary-error').style.display = 'none';
+      }
+
+      function updateTradesUI(trades) {
+        const tbody = $('trades-body');
+        tbody.innerHTML = '';
+        if (!trades.length) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px 12px;">Aucun trade disponible.</td></tr>';
+          $('trades-error').style.display = 'block';
+          return;
         }
-        async function loadTrades(dateStr){
-          if (!dateStr) return null;
-          const text = await fetchText(`opening_range_reports/trades_${dateStr}.csv`);
-          const rows = parseCSV(text).map(r => ({
-            date: r.date,
-            direction: (r.direction || '').toLowerCase(),
-            entry_time: r.entry_time,
-            entry_price: Number(r.entry_price),
-            exit_time: r.exit_time,
-            exit_price: Number(r.exit_price),
-            reason: r.reason || '',
-            opening_range_high: Number(r.opening_range_high),
-            opening_range_low: Number(r.opening_range_low),
-            profit_points: Number(r.profit_points || r.profit || 0),
-          }));
-          return rows;
+
+        trades.forEach((trade) => {
+          const direction = (trade.direction || '').toLowerCase();
+          const tagClass = direction === 'long' ? 'tag long' : 'tag short';
+          const pnlPts = Number(trade.profit_points || trade.profit || 0);
+          const pnlUsd = pnlPts * POINT_VALUE;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${trade.date || '—'}</td>
+            <td><span class="${tagClass}">${direction.toUpperCase() || '—'}</span></td>
+            <td>${formatNumber(trade.entry_price)} @ ${formatTime(trade.entry_time)}</td>
+            <td>${formatNumber(trade.exit_price)} @ ${formatTime(trade.exit_time)}</td>
+            <td>${(trade.reason || '—').replace(/_/g, ' ')}</td>
+            <td>${formatNumber(pnlPts, 2)}</td>
+            <td>${formatUSD(pnlUsd)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const lastTrade = trades[trades.length - 1];
+        const direction = (lastTrade.direction || '').toUpperCase();
+        const pnlPts = Number(lastTrade.profit_points || lastTrade.profit || 0);
+        const pnlUsd = pnlPts * POINT_VALUE;
+
+        $('trade-direction').innerHTML = direction ? `<span class="tag ${direction === 'LONG' ? 'long' : 'short'}">${direction}</span>` : '—';
+        $('trade-entry').textContent = `${formatNumber(lastTrade.entry_price)} @ ${formatTime(lastTrade.entry_time)}`;
+        $('trade-exit').textContent = `${formatNumber(lastTrade.exit_price)} @ ${formatTime(lastTrade.exit_time)}`;
+        $('trade-pnl').textContent = `${formatUSD(pnlUsd)} (${formatNumber(pnlPts, 2)} pts)`;
+        $('trade-reason').textContent = (lastTrade.reason || '—').replace(/_/g, ' ');
+
+        $('trades-error').style.display = 'none';
+      }
+
+      async function refresh() {
+        try {
+          const summary = await loadSummary();
+          updateSummaryUI(summary);
+
+          const trades = await loadTrades(summary.lastDate);
+          updateTradesUI(trades);
+
+          const now = new Date();
+          $('last-update').textContent = `Dernière actualisation : ${now.toLocaleString('fr-FR', { hour12: false })}`;
+        } catch (error) {
+          console.error(error);
+          $('summary-error').style.display = 'block';
+          $('trades-error').style.display = 'block';
         }
-        async function refresh(){
-          try{
-            const summary = await loadSummary();
-            const totals = summary.totals;
-            document.getElementById('status').textContent = 'Historique ORB (auto)';
-            const latestDate = summary.lastDate || '—';
-            document.getElementById('date').textContent = latestDate;
-            document.getElementById('now').textContent = new Date().toLocaleTimeString('fr-FR',{ timeZone:'America/New_York' });
-            const winrate = totals.trades ? (totals.wins / totals.trades * 100) : null;
-            const pnlUsd = totals.profit_points * POINT_VALUE;
-            document.getElementById('winrate').textContent = pct(winrate);
-            document.getElementById('pnl10').textContent = fmtUSD(pnlUsd);
+      }
 
-            const trades = await loadTrades(summary.lastDate).catch(() => null);
-            const orHigh = trades && trades.length ? trades[0].opening_range_high : null;
-            const orLow = trades && trades.length ? trades[0].opening_range_low : null;
-            const longLvl = Number.isFinite(orHigh) ? orHigh + 2 : null;
-            const shortLvl = Number.isFinite(orLow) ? orLow - 2 : null;
-            document.getElementById('orbHigh').textContent = fmt(orHigh);
-            document.getElementById('orbLow').textContent = fmt(orLow);
-            document.getElementById('longLvl').textContent = fmt(longLvl);
-            document.getElementById('shortLvl').textContent = fmt(shortLvl);
-
-            const lastTrade = trades && trades.length ? trades[trades.length-1] : null;
-            document.getElementById('dir').textContent = lastTrade ? lastTrade.direction.toUpperCase() : '—';
-            document.getElementById('entry').textContent = lastTrade ? `${fmt(lastTrade.entry_price)} @ ${formatTime(lastTrade.entry_time)}` : '—';
-            document.getElementById('stop').textContent = lastTrade ? `${fmt(lastTrade.exit_price)} @ ${formatTime(lastTrade.exit_time)}` : '—';
-            document.getElementById('wm').textContent = lastTrade && lastTrade.reason ? lastTrade.reason.replace(/_/g,' ') : '—';
-            const ptsEl = document.getElementById('upnlPts');
-            const usdEl = document.getElementById('upnlUsd');
-            const pts = lastTrade ? lastTrade.profit_points : null;
-            const usd = Number.isFinite(pts) ? pts * POINT_VALUE : null;
-            ptsEl.textContent = fmt(pts);
-            usdEl.textContent = fmtUSD(usd);
-            ptsEl.className = 'value ' + (pts>0?'green':pts<0?'red':'');
-            usdEl.className = 'value ' + (usd>0?'green':usd<0?'red':'');
-
-            const barsData = summary.rows.map(r => ({ date: r.date, pnl_usd: Number.isFinite(r.profit_points) ? r.profit_points * POINT_VALUE : 0 }));
-            const bars = document.getElementById('chart-bars'); if (bars) drawBars(bars, barsData);
-
-            // Today price chart
-            const today = null;
-            const canvasToday = document.getElementById('chart-today');
-            if (today && canvasToday) {
-              drawCandles(canvasToday, today.candles||[], {}, {}, summary.lastDate);
-            }
-            // Try TradingView live widget (primary), keep canvas as fallback
-            if (document.getElementById('chart-tv')) {
-              function bootTV(){
-                try {
-                  if (!window.TradingView) return;
-                  // Hide canvas fallback once TV is up
-                  var c = document.getElementById('chart-today'); if (c) c.style.display = 'none';
-                  new window.TradingView.widget({
-                    container_id: 'chart-tv', autosize: true,
-                    symbol: 'CME_MINI:NQ1!', interval: '1', range: '1D',
-                    timezone: 'America/New_York', theme: 'dark', style: '1',
-                    locale: (localStorage.getItem('site.lang')||'fr')==='fr' ? 'fr' : 'en',
-                    hide_top_toolbar: false, hide_side_toolbar: true,
-                    allow_symbol_change: false, withdateranges: false,
-                    backgroundColor: 'rgba(11,15,20,1)'
-                  });
-                } catch(e) { /* fallback remains visible */ }
-              }
-              if (!window.TradingView) {
-                var s = document.createElement('script'); s.src = 'https://s3.tradingview.com/tv.js'; s.onload = bootTV; document.head.appendChild(s);
-              } else { bootTV(); }
-            }
-          }catch(e){ console.error(e); const s = document.getElementById('status'); if(s) s.textContent = 'Erreur chargement (vérifiez les fichiers CSV)'; }
-        }
-        window.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
-      })();
+      refresh();
+      setInterval(refresh, 60000);
     </script>
-    <script>
-      // Simple candlestick renderer with ORB levels and entry/exit markers
-      (function(){
-        function parseISO(s){ try { return new Date(s); } catch(e){ return null; } }
-        function drawCandles(canvas, candles, orb, trade, sessionDate){
-          const ctx = canvas.getContext('2d');
-          const dpr = window.devicePixelRatio||1; const w = canvas.clientWidth, h = canvas.clientHeight;
-          canvas.width = w*dpr; canvas.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-          ctx.clearRect(0,0,w,h);
-          if(!candles || candles.length===0) return;
-          let min=Infinity, max=-Infinity;
-          for(const k of candles){ if(k.l<min) min=k.l; if(k.h>max) max=k.h; }
-          const pad = (max-min)*0.08 || 1; min -= pad; max += pad;
-          const x0=40, y0=10, W=w-x0-10, H=h-y0-20;
-          const y = v => y0 + H - (v-min)/(max-min||1)*H;
-          const n = candles.length;
-          const gap = 2;
-          const barW = Math.max(2, Math.floor(W/(n+1))-gap);
-          // Gridline 0.25 steps
-          ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
-          for(let t=0;t<=4;t++){ const yy = y0 + (H*t/4); ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x0+W,yy); ctx.stroke(); }
-          // Candles
-          let i=0; for(const k of candles){ const x = x0 + i*(barW+gap) + gap; const up = k.c>=k.o; const color = up ? 'rgba(0,200,120,0.9)' : 'rgba(240,80,80,0.9)'; ctx.strokeStyle=color; ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(x+barW/2, y(k.h)); ctx.lineTo(x+barW/2, y(k.l)); ctx.stroke(); const yo=y(k.o), yc=y(k.c); const top=Math.min(yo,yc), bh=Math.max(2, Math.abs(yo-yc)); ctx.fillRect(x, top, barW, bh); i++; }
-          // ORB levels
-          if (orb && (orb.high!=null) && (orb.low!=null)){
-            ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(66,133,244,0.6)';
-            const yh = y(orb.high), yl = y(orb.low);
-            ctx.beginPath(); ctx.moveTo(x0, yh); ctx.lineTo(x0+W, yh); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(x0, yl); ctx.lineTo(x0+W, yl); ctx.stroke();
-            ctx.setLineDash([]);
-          }
-          // Entry/Exit markers
-          function findIndexByTime(iso){ if(!iso) return null; const t = parseISO(iso).getTime(); for(let j=0;j<candles.length;j++){ const tt = parseISO(candles[j].t).getTime(); if (tt>=t) return j; } return candles.length-1; }
-          const entryIdx = trade && trade.entry_time ? findIndexByTime(trade.entry_time) : null;
-          if (entryIdx!=null){ const x = x0 + entryIdx*(barW+gap) + gap + barW/2; ctx.strokeStyle='#ffcc00'; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y0+H); ctx.stroke(); }
-          // Try to fetch exit time from today CSV
-          if (sessionDate){
-            fetch('opening_range_reports/trades_'+sessionDate+'.csv').then(r=> r.ok ? r.text() : Promise.reject()).then(txt=>{
-              const lines = txt.trim().split(/\r?\n/); if(lines.length<=1) return; const last = lines[lines.length-1].split(',');
-              const exit_time = last[4]; if(!exit_time) return; const idx = findIndexByTime(exit_time); if(idx==null) return; const xc = x0 + idx*(barW+gap) + gap + barW/2; ctx.strokeStyle='#9fb0d9'; ctx.beginPath(); ctx.moveTo(xc, y0); ctx.lineTo(xc, y0+H); ctx.stroke();
-            }).catch(()=>{});
-          }
-        }
-        window.drawCandles = drawCandles;
-      })();
-    </script>
-    <script>
-      // Global language toggle wiring so FR/EN works consistently
-      (function() {
-        if (window.__globalLangWired) return; window.__globalLangWired = true;
-        function setActive(cur){ var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(!fr||!en) return; fr.classList.toggle('active',cur==='fr'); en.classList.toggle('active',cur==='en'); fr.setAttribute('aria-pressed',String(cur==='fr')); en.setAttribute('aria-pressed',String(cur==='en')); }
-        function setLang(lang){ var val=(lang==='en')?'en':'fr'; localStorage.setItem('site.lang',val); if(typeof applyLanguage==='function'){ applyLanguage(val); } else { location.reload(); } setActive(val); }
-        window.addEventListener('DOMContentLoaded', function(){ var cur=localStorage.getItem('site.lang')||'fr'; setActive(cur); var fr=document.getElementById('btn-fr'); var en=document.getElementById('btn-en'); if(fr) fr.addEventListener('click', function(){ setLang('fr'); }); if(en) en.addEventListener('click', function(){ setLang('en'); }); });
-      })();
-    </script></body>
-  </html>
+  </body>
+</html>
